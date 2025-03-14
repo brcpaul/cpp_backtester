@@ -1,26 +1,33 @@
-# Compilateur et options
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O2
-INCLUDES = -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra
+INCLUDES = -Iincludes
 
-# Fichier source et executable
-SRC = src/main.cpp
 TARGET = backtester
 
-# Regle par defaut
-all: $(TARGET)
+SRC_DIR = src
+BUILD_DIR = build
 
-# Compilation de l’executable
-$(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $<
+SRCS := $(shell find $(SRC_DIR) -name "*.cpp")
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+OBJ_DIRS := $(sort $(dir $(OBJS)))
 
-# Nettoyage
+all: directories $(TARGET)
+
+directories:
+	@mkdir -p $(OBJ_DIRS)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
 clean:
-	rm -f $(TARGET)
+	rm -rf $(BUILD_DIR) $(TARGET)
 
-# Execution
+re: clean all
+
 run: all
 	./$(TARGET)
 
-# Indique que ces cibles ne sont pas des fichiers
 .PHONY: all clean run
