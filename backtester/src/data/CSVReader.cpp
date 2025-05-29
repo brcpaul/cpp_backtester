@@ -34,5 +34,12 @@ CSVRow CSVReader::split(const std::string &s, char delimiter)
     {
         row.values.push_back(token);
     }
+
+    // Prend en compte le cas où la dernière valeur est vide
+    if (!s.empty() && s.back() == delimiter)
+    {
+        row.values.push_back("");
+    }
+
     return row;
 }
