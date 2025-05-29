@@ -2,7 +2,7 @@
 
 void runCSVReaderTests();
 void runDataLoaderTests();
-//void runCSVWriterTests();
+void runCSVWriterTests();
 //void runDataConverterTests();
 
 int main() {
@@ -10,7 +10,7 @@ int main() {
     
     runCSVReaderTests();
     runDataLoaderTests();
-    //runCSVWriterTests();
+    runCSVWriterTests();
     //runDataConverterTests();
     
     std::cout << "\n=== Tous les tests terminés ===\n";
