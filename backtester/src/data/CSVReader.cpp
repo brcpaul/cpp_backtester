@@ -15,7 +15,7 @@ CSVReader::CSVReader(const std::string filename) : filename(filename)
 std::vector<CSVRow> CSVReader::readCSV()
 {
     std::vector<CSVRow> rows;
-    std::fstream file(filename);
+    std::ifstream file(filename);
     std::string line;
     while (std::getline(file, line))
     {
