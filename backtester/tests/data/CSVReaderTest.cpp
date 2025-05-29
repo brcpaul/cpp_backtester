@@ -4,20 +4,7 @@
 #include <cassert>
 #include <exception>
 #include "../includes/data/CSVReader.h"
-
-// Fonction utilitaire pour créer un fichier de test
-void createTestFile(const std::string& filename, const std::string& content) {
-    std::ofstream file(filename);
-    file << content;
-    file.close();
-}
-
-// Fonction utilitaire pour nettoyer un fichier
-void cleanupFile(const std::string& filename) {
-    if (std::filesystem::exists(filename)) {
-        std::filesystem::remove(filename);
-    }
-}
+#include "../utils/TestFile.h"
 
 // Test du constructeur avec un fichier valide
 void testConstructorValidFile() {
@@ -149,26 +136,17 @@ void testSpacesInValues() {
     std::cout << "PASS\n";
 }
 
-int main() {
+// Tous les tests dans une seule fonction
+void runCSVReaderTests() {
     std::cout << "=== Tests CSVReader ===\n\n";
-    
-    try {
-        testConstructorValidFile();
-        testConstructorInvalidFile();
-        testReadCSVValidData();
-        testReadEmptyCSV();
-        testEmptyFields();
-        testSpacesInValues();
-        
-        std::cout << "\n=== Tous les tests sont passés avec succès! ===\n";
-        
-    } catch (const std::exception& e) {
-        std::cout << "\nErreur lors des tests: " << e.what() << std::endl;
-        return 1;
-    } catch (...) {
-        std::cout << "\nErreur inconnue lors des tests" << std::endl;
-        return 1;
-    }
-    
-    return 0;
+
+    // Chaque test encapsulé dans un bloc try pour continuer malgré un échec
+    try { testConstructorValidFile(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testConstructorInvalidFile(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testReadCSVValidData(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testReadEmptyCSV(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testEmptyFields(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testSpacesInValues(); } catch (...) { std::cout << "FAIL\n"; }
+
+    std::cout << "\n=== Fin des tests CSVReader ===\n";
 }
