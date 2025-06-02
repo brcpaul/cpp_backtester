@@ -29,6 +29,10 @@ private:
     // Associe orderId -> instrument (permet de retrouver le bon carnet)
     std::unordered_map<long, std::string> orderIdToInstrument;
 
+    Order matchOrder(Order& order, OrderBook& book);
+
+    void executeOrder(Order& order, int quantity, double price);
+
     void logNewOrder(const Order& order, long long timestamp);
     void logOrderExecution(const Order& order, double executed_quantity, double execution_price, long long timestamp);
     void logOrderPartialExecution(const Order& order, double executed_quantity, double execution_price, long long timestamp);

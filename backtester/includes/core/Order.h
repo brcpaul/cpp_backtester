@@ -12,13 +12,7 @@ enum class OrderType { LIMIT, MARKET };
 
 std::ostream &operator<<(std::ostream &os, OrderType type);
 
-enum OrderStatus {
-  EXECUTED,
-  PARTIALLY_EXECUTED,
-  PENDING,
-  CANCELED,
-  REJECTED
-};
+enum OrderStatus { EXECUTED, PARTIALLY_EXECUTED, PENDING, CANCELED, REJECTED };
 
 std::ostream &operator<<(std::ostream &os, OrderStatus status);
 
@@ -32,9 +26,11 @@ struct Order {
   long long timestamp;
 
   OrderStatus status;
-  double executed_quantity;
+  int executed_quantity;
   double execution_price;
   double sum_execution_price;
+
+  bool AcceptPrice(int price);
 
   Order();
   Order(long long id, const std::string &instr, OrderSide s, OrderType t,
