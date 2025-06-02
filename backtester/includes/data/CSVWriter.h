@@ -16,7 +16,7 @@ enum class OrderStatus {
 struct OutputData {
     // Données originales
     long long timestamp;
-    std::string order_id;
+    std::string order_id;   
     std::string instrument;
     std::string side;
     std::string type;
