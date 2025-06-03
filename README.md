@@ -55,19 +55,20 @@ Before starting, make sure your environment has the following tools installed:
 
 ## 📦 Installation
 
-To run the machine engine, execute the following commands:
+Clone the repository:
 
     git clone https://github.com/brcpaul/cpp_backtester.git
-    cd cpp_backtester
-    mkdir build && cd build
-    cmake ..
-    make
 
 ---
 
 ## 🚀 Usage
 
-Nécessaire ou non?
+To run the machine engine, execute the following commands:
+
+    cd cpp_backtester
+    cd backtester/
+    make
+    ./backtester
 
 ---
 
