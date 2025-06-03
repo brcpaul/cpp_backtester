@@ -107,16 +107,6 @@ To run the unit tests, execute the following command:
 
 ![](docs/file_tree.drawio.svg)
 
-.
-cpp_backtester/
-├── src/          # Core matching engine logic
-├── include/      # Header files
-├── tests/        # Unit & performance tests
-├── examples/     # Sample strategies (optional)
-├── data/         # Sample input/output CSVs
-├── build/        # CMake build directory
-└── README.md     # This file
-
 ---
 
 
