@@ -100,7 +100,7 @@ Example:
 
 To run the unit tests, execute the following command:
 
-    ./tests/run_tests
+    ./tests
 
 ---
 
