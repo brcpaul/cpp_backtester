@@ -13,7 +13,7 @@ Welcome to the **Matching Engine** project in **C++**. This project implements a
   - [🔧 Prerequisites](#-prerequisites)
   - [📦 Installation](#-installation)
   - [🚀 Usage](#-usage)
-  - [🗃️ Input Format](#-input-format)
+  - [🗃️ Input Format](#%EF%B8%8F-input-format)
   - [📤 Output Format](#-output-format)
   - [✅ Unit Tests](#-unit-tests)
   - [📁 Project Structure](#-project-structure)
@@ -105,7 +105,7 @@ To run the unit tests, execute the following command:
 
 ## 📁 Project Structure
 
-![](docs/file_tree.drawio.svg)
+![](docs/file-tree.drawio.svg)
 
 ---
 
