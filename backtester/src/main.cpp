@@ -27,11 +27,11 @@ int main() {
                 171717171717171717);
   engine.submitOrder(order);
 
-  order = Order(4, "AAPL", OrderSide::SELL, OrderType::LIMIT, 103, 2,
+  order = Order(4, "AAPL", OrderSide::SELL, OrderType::MARKET, 103, 2,
                 171717171717171717);
   engine.submitOrder(order);
 
-  order = Order(5, "AAPL", OrderSide::SELL, OrderType::LIMIT, 101, 10,
+  order = Order(5, "AAPL", OrderSide::SELL, OrderType::LIMIT, 99, 10,
                 171717171717171717);
   engine.submitOrder(order);
 
@@ -74,4 +74,4 @@ int main() {
   // writer.writeData(outputData);
   // writer.close();
   // std::cout << "Output OKKKKKKKKKK" << std::endl;
-}
+  }

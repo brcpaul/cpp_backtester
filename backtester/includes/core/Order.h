@@ -16,7 +16,8 @@ enum OrderStatus { EXECUTED, PARTIALLY_EXECUTED, PENDING, CANCELED, REJECTED };
 
 std::ostream &operator<<(std::ostream &os, OrderStatus status);
 
-struct Order {
+class Order {
+public:
   long long order_id;
   std::string instrument;
   OrderSide side;
@@ -30,11 +31,12 @@ struct Order {
   double execution_price;
   double sum_execution_price;
 
-  bool AcceptPrice(int price);
+  bool AcceptPrice(double bestProposedPrice);
 
   Order();
   Order(long long id, const std::string &instr, OrderSide s, OrderType t,
-        double p, int q, long long ts);
+        double p, int q, long long ts, int executed_quantity = 0,
+        double execution_price = 0.0, double sum_execution_price = 0.0);
 };
 
 #endif // ORDER_H

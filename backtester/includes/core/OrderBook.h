@@ -4,10 +4,11 @@
 #include "Order.h"
 #include <list>
 #include <map>
+// #include <string>
 #include <unordered_map>
 #include <vector>
-#include "BookSide.h"
 
+using OrderList = std::list<Order>;
 
 class OrderBook {
 public:
@@ -29,8 +30,8 @@ public:
   Order getBestAsk() const;
 
   // Carnet structuré par prix, avec FIFO à chaque niveau
-  BookSide<std::greater<double> > bids; // plus haut prix en haut
-  BookSide<std::less<double> > asks; // plus bas prix en haut
+  std::map<double, OrderList, std::greater<double> > bids; // plus haut prix en haut
+  std::map<double, OrderList, std::less<double> > asks; // plus bas prix en haut
 
 private:
   // Accès rapide à un ordre pour modification/annulation

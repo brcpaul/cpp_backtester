@@ -2,12 +2,16 @@
 
 Order::Order()
     : order_id(0), instrument(""), side(OrderSide::BUY), type(OrderType::LIMIT),
-      price(0.0), quantity(0), timestamp(0) {}
+      price(0.0), quantity(0), timestamp(0), executed_quantity(0),
+      execution_price(0.0), sum_execution_price(0.0) {}
 
 Order::Order(long long id, const std::string &instr, OrderSide s, OrderType t,
-             double p, int q, long long ts)
+             double p, int q, long long ts, int executed_quantity,
+             double execution_price, double sum_execution_price)
     : order_id(id), instrument(instr), side(s), type(t), price(p), quantity(q),
-      timestamp(ts) {}
+      timestamp(ts), executed_quantity(executed_quantity),
+      execution_price(execution_price),
+      sum_execution_price(sum_execution_price) {}
 
 std::ostream &operator<<(std::ostream &os, OrderSide side) {
   return os << (side == OrderSide::BUY ? "BUY" : "SELL");
@@ -33,14 +37,14 @@ std::ostream &operator<<(std::ostream &os, OrderStatus status) {
   return os;
 }
 
-bool Order::AcceptPrice(int price) {
+bool Order::AcceptPrice(double bestProposedPrice) {
   if (type == OrderType::LIMIT) {
-    return price == price;
-  } else {
     if (side == OrderSide::BUY) {
-      return price <= price;
+      return bestProposedPrice <= price;
     } else {
-      return price >= price;
+      return bestProposedPrice >= price;
     }
+  } else {
+    return true;
   }
 }

@@ -34,11 +34,11 @@ private:
     void executeOrder(Order& order, int quantity, double price);
 
     void logNewOrder(const Order& order, long long timestamp);
-    void logOrderExecution(const Order& order, double executed_quantity, double execution_price, long long timestamp);
-    void logOrderPartialExecution(const Order& order, double executed_quantity, double execution_price, long long timestamp);
-    void logOrderCancellation(const Order& order, long long timestamp); 
-    void logOrderModification(const Order& order, long long timestamp);
-    void logOrderRejection(const Order& order, long long timestamp);
+    void logOrderExecution(const Order& order, long long timestamp);
+    void logOrderPartialExecution(const Order& order, int executed_quantity, double execution_price, long long timestamp);
+    // void logOrderCancellation(const Order& order, long long timestamp); 
+    // void logOrderModification(const Order& order, long long timestamp);
+    // void logOrderRejection(const Order& order, long long timestamp);
 };
 
 #endif // MATCHING_ENGINE_H

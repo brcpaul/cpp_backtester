@@ -24,7 +24,7 @@ std::string OrderBook::toString() const {
   for (const auto &[price, orders] : bids) {
     for (const Order &order : orders) {
       oss << "    [BUY] ID: " << order.order_id << ", Price: " << price
-          << ", Qty: " << order.quantity << "\n";
+          << ", Qty: " << order.quantity - order.executed_quantity << "\n";
     }
   }
 
@@ -32,13 +32,17 @@ std::string OrderBook::toString() const {
   for (const auto &[price, orders] : asks) {
     for (const auto &order : orders) {
       oss << "    [SELL] ID: " << order.order_id << ", Price: " << price
-          << ", Qty: " << order.quantity << "\n";
+          << ", Qty: " << order.quantity - order.executed_quantity << "\n";
     }
   }
 
   return oss.str();
 }
 
-Order OrderBook::getBestBid() const { return bids.begin()->second.front(); }
+Order OrderBook::getBestBid() const { 
+  return bids.begin()->second.front(); 
+}
 
-Order OrderBook::getBestAsk() const { return asks.begin()->second.front(); }
+Order OrderBook::getBestAsk() const { 
+  return asks.begin()->second.front(); 
+}
