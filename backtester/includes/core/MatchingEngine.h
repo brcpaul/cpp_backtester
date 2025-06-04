@@ -25,9 +25,8 @@ public:
 private:
     // Chaque instrument a son OrderBook
     std::unordered_map<std::string, OrderBook> books;
-
-    // Associe orderId -> instrument (permet de retrouver le bon carnet)
-    std::unordered_map<long, std::string> orderIdToInstrument;
+    
+    std::unordered_map<long, Order> orders;
 
     Order matchOrder(Order& order, OrderBook& book);
 

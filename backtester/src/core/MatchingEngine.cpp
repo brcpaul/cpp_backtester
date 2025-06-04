@@ -1,6 +1,7 @@
 #include "../../includes/core/MatchingEngine.h"
 #include "../../includes/core/OrderBook.h"
 #include <iostream>
+#include <iterator>
 #include <sstream>
 
 MatchingEngine::MatchingEngine() {}
@@ -13,6 +14,8 @@ bool MatchingEngine::submitOrder(Order &order) {
   if (order.type == OrderType::LIMIT && order.quantity > 0) {
     book.addOrder(order);
   }
+
+  orders[order.order_id] = order;
 
   return true;
 }
@@ -65,16 +68,89 @@ void MatchingEngine::executeOrder(Order &order, int quantity, double price) {
   }
 }
 
-bool MatchingEngine::modifyOrder(Order &modifiedOrder) { 
+bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
 
-  if(modifiedOrder.type == OrderType::MARKET) {
+  if (orders.find(modifiedOrder.order_id) == orders.end()) {
     return false;
   }
-  
 
+  Order &originalOrder = orders[modifiedOrder.order_id];
+
+  if (originalOrder.type == OrderType::MARKET) {
+    return false;
+  }
+
+  if (originalOrder.status == OrderStatus::EXECUTED ||
+      originalOrder.status == OrderStatus::CANCELED) {
+    return false;
+  }
+
+  OrderBook &book = books[originalOrder.instrument];
+
+  if (modifiedOrder.price != originalOrder.price) {
+
+    std::list<Order> &ordersAtPrice = (originalOrder.side == OrderSide::BUY)
+                                          ? book.bids[originalOrder.price]
+                                          : book.asks[originalOrder.price];
+
+    for (std::list<Order>::iterator it = ordersAtPrice.begin();
+         it != ordersAtPrice.end(); ++it) {
+      if (it->order_id == originalOrder.order_id) {
+        ordersAtPrice.erase(it);
+        break;
+      }
+    }
+
+    if (ordersAtPrice.empty()) {
+      if (originalOrder.side == OrderSide::BUY) {
+        book.bids.erase(originalOrder.price);
+      } else {
+        book.asks.erase(originalOrder.price);
+      }
+    }
+
+    originalOrder.price = modifiedOrder.price;
+
+    originalOrder = matchOrder(originalOrder, book);
+    if (originalOrder.quantity > 0) {
+      book.addOrder(originalOrder);
+    }
+  }
+
+  if (modifiedOrder.quantity != originalOrder.quantity) {
+
+    if (modifiedOrder.quantity - originalOrder.executed_quantity >= 0) {
+      originalOrder.quantity =
+          modifiedOrder.quantity - originalOrder.executed_quantity;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
 }
 
-bool MatchingEngine::cancelOrder(Order &cancelledOrder) { return true; }
+bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
+
+  if (orders.find(cancelledOrder.order_id) == orders.end()) {
+    return false;
+  }
+
+  Order &originalOrder = orders[cancelledOrder.order_id];
+
+  if (originalOrder.status == OrderStatus::EXECUTED ||
+      originalOrder.status == OrderStatus::CANCELED) {
+    return false;
+  }
+
+  if (originalOrder.type == OrderType::MARKET) {
+    return false;
+  }
+
+  originalOrder.status = OrderStatus::CANCELED;
+  // logOrderCancellation(originalOrder, originalOrder.timestamp);
+  return true;
+}
 
 OrderBook MatchingEngine::getOrderBook(const std::string &instrument) {
   return books[instrument];
