@@ -68,7 +68,7 @@ To run the machine engine, execute the following commands:
     cd cpp_backtester
     cd backtester/
     make
-    ./backtester
+    ./main
 
 ---
 
@@ -100,7 +100,9 @@ Example:
 
 To run the unit tests, execute the following command:
 
-    ./tests
+    cd tests/
+    make
+    ./main
 
 ---
 

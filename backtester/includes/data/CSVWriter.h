@@ -4,14 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-
-enum class OrderStatus {
-    EXECUTED,
-    PARTIALLY_EXECUTED,
-    PENDING,
-    CANCELED,
-    REJECTED
-};
+#include "../core/Order.h"
 
 struct OutputData {
     // Données originales

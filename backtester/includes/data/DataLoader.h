@@ -3,15 +3,11 @@
 
 #include <vector>
 #include <string>
+#include "../core/Order.h"
 
 enum class Side {
     BUY,
     SELL
-};
-
-enum class OrderType {
-    LIMIT,
-    MARKET
 };
 
 enum class Action {

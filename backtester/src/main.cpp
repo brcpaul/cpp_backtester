@@ -5,6 +5,14 @@
 #include "../includes/core/MatchingEngine.h"
 #include "../includes/core/Order.h"
 
+#include "data/DataLoader.h"
+#include "data/DataConverter.h"
+#include "data/CSVWriter.h"
+#include "data/CSVReader.h"
+#include "core/Order.h"           // contient la définition de Order
+#include "core/MatchingEngine.h"  // contient la classe MatchingEngine
+
+
 #include <iostream>
 
 int main() {
@@ -18,15 +26,10 @@ int main() {
 
   engine.submitOrder(order);
 
-  order = Order(2, "AAPL", OrderSide::SELL, OrderType::LIMIT, 102, 5,
+  order = Order(2, "AAPL", OrderSide::SELL, OrderType::LIMIT, 102, 2,
                 171717171717171717);
 
   engine.submitOrder(order);
-
-  Order modifiedOrder = Order(2, "AAPL", OrderSide::SELL, OrderType::LIMIT, 103, 3,
-                171717171717171717);
-
-  engine.modifyOrder(modifiedOrder);
 
   order = Order(3, "AAPL", OrderSide::BUY, OrderType::LIMIT, 100, 2,
                 171717171717171717);
@@ -37,10 +40,6 @@ int main() {
   engine.submitOrder(order);
 
   order = Order(5, "AAPL", OrderSide::SELL, OrderType::LIMIT, 99, 10,
-                171717171717171717);
-  engine.submitOrder(order);
-
-  order = Order(6, "AAPL", OrderSide::BUY, OrderType::MARKET, 0, 10,
                 171717171717171717);
   engine.submitOrder(order);
 
