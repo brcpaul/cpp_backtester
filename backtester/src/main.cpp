@@ -59,13 +59,22 @@ int main() {
       
 
         // Enregistrer l'état après traitement
-        outputData.push_back(converter.convertToOutput(data));
+        OutputData out = converter.convertToOutput(data);
+        out.status = order.status;
+        out.executed_quantity = order.executed_quantity;
+        out.execution_price = order.execution_price;
+        out.counterparty_id = out.counterparty_id;
+        // Ajout au log centralisé
+        engine.logOutput(out);
+
+        outputData.push_back(out);
+       
     }
 
     // 4. Fichier de sortie
     CSVWriter writer("output_results.csv");
     writer.writeHeader();
-    writer.writeData(outputData);
+    writer.writeData(engine.getLogs());
     writer.close();
 
     // 5. Etat final du carnet d’ordres

@@ -185,3 +185,11 @@ void MatchingEngine::logOrderPartialExecution(const Order &order,
       << execution_price << "," << order.execution_price;
   std::cout << oss.str() << std::endl;
 }
+
+void MatchingEngine::logOutput(const OutputData& data) {
+    logs.push_back(data);
+}
+
+const std::vector<OutputData>& MatchingEngine::getLogs() const {
+    return logs;
+}

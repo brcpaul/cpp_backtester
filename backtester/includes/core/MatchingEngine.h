@@ -6,6 +6,7 @@
 #include <string>
 #include "Order.h"
 #include "OrderBook.h"
+#include "data/CSVWriter.h"
 
 class MatchingEngine {
 public:
@@ -21,6 +22,9 @@ public:
     bool cancelOrder(Order& cancelledOrder);
 
     OrderBook getOrderBook(const std::string& instrument);
+
+    void logOutput(const OutputData& data);  // Ajout d’un log
+    const std::vector<OutputData>& getLogs() const;  // Accès aux logs
 
 private:
     // Chaque instrument a son OrderBook
@@ -38,6 +42,8 @@ private:
     // void logOrderCancellation(const Order& order, long long timestamp); 
     // void logOrderModification(const Order& order, long long timestamp);
     // void logOrderRejection(const Order& order, long long timestamp);
+
+    std::vector<OutputData> logs;  // Historique des ordres traités
 };
 
 #endif // MATCHING_ENGINE_H
