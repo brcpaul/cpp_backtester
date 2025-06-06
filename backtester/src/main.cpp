@@ -9,8 +9,8 @@
 #include "data/DataConverter.h"
 #include "data/CSVWriter.h"
 #include "data/CSVReader.h"
-#include "core/Order.h"           // contient la définition de Order
-#include "core/MatchingEngine.h"  // contient la classe MatchingEngine
+#include "core/Order.h"         
+#include "core/MatchingEngine.h"  
 
 
 #include <iostream>
@@ -21,21 +21,21 @@ int main() {
     DataLoader loader("data/orders.csv");
     std::vector<Data> inputData = loader.loadData();
 
-    // 2. Initialiser les composants
+    // 2. Initialisation
     DataConverter converter;
     MatchingEngine engine;
     std::vector<OutputData> outputData;
 
-    // 3. Traiter chaque ligne
+    // 3. On traite chaque ligne du fichier CSV
     for (const auto& data : inputData) {
 
-        // 🔁 Convertir string en long long pour l’ID
+        // Convertir string en long long pour l’ID
         long long orderId = std::stoll(data.order_id);
 
-        // 🔁 Convertir Side en OrderSide
+        // Convertir Side en OrderSide
         OrderSide orderSide = (data.side == Side::BUY) ? OrderSide::BUY : OrderSide::SELL;
 
-        // 🔁 Créer l’ordre
+        // On créé l’ordre
         Order order;
         order = Order(
             orderId,
@@ -48,7 +48,7 @@ int main() {
         );
       
 
-        // Appliquer l'action
+        // Méthodes en fonction de l’action
         if (data.action == Action::NEW) {
             engine.submitOrder(order);
         } else if (data.action == Action::MODIFY) {
@@ -62,14 +62,15 @@ int main() {
         outputData.push_back(converter.convertToOutput(data));
     }
 
-    // 4. Écrire le fichier de sortie
+    // 4. Fichier de sortie
     CSVWriter writer("output_results.csv");
     writer.writeHeader();
     writer.writeData(outputData);
     writer.close();
 
-    // 5. (Optionnel) Afficher l’état final du carnet d’ordres
+    // 5. Etat final du carnet d’ordres
     std::cout << engine.getOrderBook("AAPL").toString() << std::endl;
+    
   // MatchingEngine engine;
 
   // Order order;
