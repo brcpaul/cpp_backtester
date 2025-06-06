@@ -17,33 +17,86 @@
 
 int main() {
 
-  MatchingEngine engine;
+      // 1. Charger les données CSV
+    DataLoader loader("data/orders.csv");
+    std::vector<Data> inputData = loader.loadData();
 
-  Order order;
+    // 2. Initialiser les composants
+    DataConverter converter;
+    MatchingEngine engine;
+    std::vector<OutputData> outputData;
 
-  order = Order(1, "AAPL", OrderSide::BUY, OrderType::LIMIT, 100, 2,
-                171717171717171717);
+    // 3. Traiter chaque ligne
+    for (const auto& data : inputData) {
 
-  engine.submitOrder(order);
+        // 🔁 Convertir string en long long pour l’ID
+        long long orderId = std::stoll(data.order_id);
 
-  order = Order(2, "AAPL", OrderSide::SELL, OrderType::LIMIT, 102, 2,
-                171717171717171717);
+        // 🔁 Convertir Side en OrderSide
+        OrderSide orderSide = (data.side == Side::BUY) ? OrderSide::BUY : OrderSide::SELL;
 
-  engine.submitOrder(order);
+        // 🔁 Créer l’ordre
+        Order order;
+        order = Order(
+            orderId,
+            data.instrument,
+            orderSide,
+            data.type,
+            data.price,
+            static_cast<int>(data.quantity),
+            data.timestamp
+        );
+      
 
-  order = Order(3, "AAPL", OrderSide::BUY, OrderType::LIMIT, 100, 2,
-                171717171717171717);
-  engine.submitOrder(order);
+        // Appliquer l'action
+        if (data.action == Action::NEW) {
+            engine.submitOrder(order);
+        } else if (data.action == Action::MODIFY) {
+            engine.modifyOrder(order);
+        } else if (data.action == Action::CANCEL) {
+            engine.cancelOrder(order);
+        }
+      
 
-  order = Order(4, "AAPL", OrderSide::SELL, OrderType::MARKET, 103, 2,
-                171717171717171717);
-  engine.submitOrder(order);
+        // Enregistrer l'état après traitement
+        outputData.push_back(converter.convertToOutput(data));
+    }
 
-  order = Order(5, "AAPL", OrderSide::SELL, OrderType::LIMIT, 99, 10,
-                171717171717171717);
-  engine.submitOrder(order);
+    // 4. Écrire le fichier de sortie
+    CSVWriter writer("output_results.csv");
+    writer.writeHeader();
+    writer.writeData(outputData);
+    writer.close();
 
-  std::cout << engine.getOrderBook("AAPL").toString() << std::endl;
+    // 5. (Optionnel) Afficher l’état final du carnet d’ordres
+    std::cout << engine.getOrderBook("AAPL").toString() << std::endl;
+  // MatchingEngine engine;
+
+  // Order order;
+
+  // order = Order(1, "AAPL", OrderSide::BUY, OrderType::LIMIT, 100, 2,
+  //               171717171717171717);
+
+  // engine.submitOrder(order);
+
+  // order = Order(2, "AAPL", OrderSide::SELL, OrderType::LIMIT, 102, 2,
+  //               171717171717171717);
+
+  // engine.submitOrder(order);
+
+  // order = Order(3, "AAPL", OrderSide::BUY, OrderType::LIMIT, 100, 2,
+  //               171717171717171717);
+  // engine.submitOrder(order);
+
+  // order = Order(4, "AAPL", OrderSide::SELL, OrderType::MARKET, 103, 2,
+  //               171717171717171717);
+  // engine.submitOrder(order);
+
+  // order = Order(5, "AAPL", OrderSide::SELL, OrderType::LIMIT, 99, 10,
+  //               171717171717171717);
+  // engine.submitOrder(order);
+
+  // std::cout << engine.getOrderBook("AAPL").toString() << std::endl;
 
   
 
