@@ -6,6 +6,10 @@
 
 MatchingEngine::MatchingEngine() {}
 
+void MatchingEngine::setOutputStream(std::ostream *output_stream) {
+  logger.setOutputStream(output_stream);
+}
+
 bool MatchingEngine::submitOrder(Order &order) {
   OrderBook &book = books[order.instrument];
 
@@ -61,10 +65,10 @@ void MatchingEngine::executeOrder(Order &order, int quantity, double price) {
 
   if (order.executed_quantity == order.quantity) {
     order.status = OrderStatus::EXECUTED;
-    logOrderExecution(order, order.timestamp);
+    logger.logOrderExecution(order, order.timestamp);
   } else {
     order.status = OrderStatus::PARTIALLY_EXECUTED;
-    logOrderPartialExecution(order, quantity, price, order.timestamp);
+    logger.logOrderPartialExecution(order, quantity, price, order.timestamp);
   }
 }
 
@@ -154,42 +158,4 @@ bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
 
 OrderBook MatchingEngine::getOrderBook(const std::string &instrument) {
   return books[instrument];
-}
-
-void MatchingEngine::logNewOrder(const Order &order, long long timestamp) {
-  std::ostringstream oss;
-  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.price << ","
-      << order.quantity << "," << order.status << ",0,0,0";
-  std::cout << oss.str() << std::endl;
-}
-
-void MatchingEngine::logOrderExecution(const Order &order,
-                                       long long timestamp) {
-  std::ostringstream oss;
-  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.price << ","
-      << order.quantity << ",EXECUTED," << order.executed_quantity << ","
-      << order.execution_price << "," << order.execution_price;
-  std::cout << oss.str() << std::endl;
-}
-
-void MatchingEngine::logOrderPartialExecution(const Order &order,
-                                              int executed_quantity,
-                                              double execution_price,
-                                              long long timestamp) {
-  std::ostringstream oss;
-  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.price << ","
-      << order.quantity << ",PARTIALLY_EXECUTED," << executed_quantity << ","
-      << execution_price << "," << order.execution_price;
-  std::cout << oss.str() << std::endl;
-}
-
-void MatchingEngine::logOutput(const OutputData& data) {
-    logs.push_back(data);
-}
-
-const std::vector<OutputData>& MatchingEngine::getLogs() const {
-    return logs;
 }

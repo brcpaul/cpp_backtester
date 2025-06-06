@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 
-enum class OrderSide { BUY, SELL };
+enum OrderSide { BUY, SELL };
 
 std::ostream &operator<<(std::ostream &os, OrderSide side);
 
-enum class OrderType { LIMIT, MARKET };
+enum OrderType { LIMIT, MARKET };
 
 std::ostream &operator<<(std::ostream &os, OrderType type);
 

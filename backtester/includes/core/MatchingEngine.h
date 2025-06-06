@@ -1,49 +1,41 @@
 #ifndef MATCHING_ENGINE_H
 #define MATCHING_ENGINE_H
 
-#include <unordered_map>
-#include <vector>
-#include <string>
+#include "../utils/Logger.h"
 #include "Order.h"
 #include "OrderBook.h"
-#include "data/CSVWriter.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class MatchingEngine {
 public:
-    MatchingEngine();
+  MatchingEngine();
 
-    // Crée ou route un ordre vers le carnet correspondant
-    bool submitOrder(Order& order);
+  // Crée ou route un ordre vers le carnet correspondant
+  bool submitOrder(Order &order);
 
-    // Modifie un ordre existant
-    bool modifyOrder(Order& modifiedOrder);
+  // Modifie un ordre existant
+  bool modifyOrder(Order &modifiedOrder);
 
-    // Annule un ordre
-    bool cancelOrder(Order& cancelledOrder);
+  // Annule un ordre
+  bool cancelOrder(Order &cancelledOrder);
 
-    OrderBook getOrderBook(const std::string& instrument);
+  OrderBook getOrderBook(const std::string &instrument);
 
-    void logOutput(const OutputData& data);  // Ajout d’un log
-    const std::vector<OutputData>& getLogs() const;  // Accès aux logs
+  void setOutputStream(std::ostream *output_stream);
 
 private:
-    // Chaque instrument a son OrderBook
-    std::unordered_map<std::string, OrderBook> books;
-    
-    std::unordered_map<long, Order> orders;
+  // Chaque instrument a son OrderBook
+  std::unordered_map<std::string, OrderBook> books;
 
-    Order matchOrder(Order& order, OrderBook& book);
+  std::unordered_map<long, Order> orders;
 
-    void executeOrder(Order& order, int quantity, double price);
+  Logger logger;
 
-    void logNewOrder(const Order& order, long long timestamp);
-    void logOrderExecution(const Order& order, long long timestamp);
-    void logOrderPartialExecution(const Order& order, int executed_quantity, double execution_price, long long timestamp);
-    // void logOrderCancellation(const Order& order, long long timestamp); 
-    // void logOrderModification(const Order& order, long long timestamp);
-    // void logOrderRejection(const Order& order, long long timestamp);
+  Order matchOrder(Order &order, OrderBook &book);
 
-    std::vector<OutputData> logs;  // Historique des ordres traités
+  void executeOrder(Order &order, int quantity, double price);
 };
 
 #endif // MATCHING_ENGINE_H

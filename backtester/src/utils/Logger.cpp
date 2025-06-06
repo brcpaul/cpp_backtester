@@ -1,9 +1,37 @@
-// #include "../../includes/utils/Logger.h"
+#include "../../includes/utils/Logger.h"
 
-// Logger::Logger() {}
+Logger::Logger() : output_stream(&std::cout) {}
 
-// std::string Logger::formatCSVRow(const std::string& message) {
-//     std::ostringstream oss;
-//     oss << message;
-//     return oss.str();
-// }
+Logger::Logger(std::ostream *output_stream) : output_stream(output_stream) {}
+
+void Logger::setOutputStream(std::ostream *output_stream) {
+  this->output_stream = output_stream;
+}
+
+void Logger::logNewOrder(const Order &order, long long timestamp) {
+  std::ostringstream oss;
+  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
+      << order.side << "," << order.type << "," << order.price << ","
+      << order.quantity << "," << order.status << ",0,0,0";
+  *output_stream << oss.str() << std::endl;
+}
+
+void Logger::logOrderExecution(const Order &order, long long timestamp) {
+  std::ostringstream oss;
+  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
+      << order.side << "," << order.type << "," << order.price << ","
+      << order.quantity << ",EXECUTED," << order.executed_quantity << ","
+      << order.execution_price << "," << order.execution_price;
+  *output_stream << oss.str() << std::endl;
+}
+
+void Logger::logOrderPartialExecution(const Order &order, int executed_quantity,
+                                      double execution_price,
+                                      long long timestamp) {
+  std::ostringstream oss;
+  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
+      << order.side << "," << order.type << "," << order.price << ","
+      << order.quantity << ",PARTIALLY_EXECUTED," << executed_quantity << ","
+      << execution_price << "," << order.execution_price;
+  *output_stream << oss.str() << std::endl;
+}
