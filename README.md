@@ -1,6 +1,6 @@
 # Matching Engine in C++
 
-Welcome to the **Matching Engine** project in **C++**. This project implements a high-performance matching engine in modern C++ designed for financial markets. It parses trading orders from a CSV file, processes them using a limit order book per instrument, and outputs the results to a CSV file.
+Welcome to the **Matching Engine** project in **C++**. This project implements a high-performance matching engine in C++ designed for financial markets. It parses trading orders from a CSV file, processes them using a limit order book per instrument, and outputs the results to a CSV file.
 
 ---
 
