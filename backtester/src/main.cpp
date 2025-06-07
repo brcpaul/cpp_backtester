@@ -22,16 +22,13 @@ int main() {
   // 3. On traite chaque ligne du fichier CSV
   for (const auto &data : inputData) {
 
-    // Convertir string en long long pour l’ID
-    long long orderId = std::stoll(data.order_id);
-
     // Convertir Side en OrderSide
     OrderSide orderSide =
         (data.side == Side::BUY) ? OrderSide::BUY : OrderSide::SELL;
 
     // On créé l’ordre
     Order order;
-    order = Order(orderId, data.instrument, orderSide, data.type, data.price,
+    order = Order(data.order_id, data.instrument, orderSide, data.type, data.price,
                   static_cast<int>(data.quantity), data.timestamp);
 
     // Méthodes en fonction de l’action

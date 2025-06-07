@@ -19,11 +19,11 @@ enum class Action {
 struct Data
 {
     long long timestamp;        // Horodatage en nanosecondes depuis l'époque Unix
-    std::string order_id;       // Identifiant unique de l'ordre
+    long long order_id;         // Identifiant unique de l'ordre
     std::string instrument;     // Code de l'instrument financier
     Side side;                  // Côté de l'ordre (BUY ou SELL)
     OrderType type;             // Type d'ordre (LIMIT, MARKET)
-    double quantity;            // Quantité de l'instrument
+    long long quantity;         // Quantité de l'instrument
     double price;               // Prix limite (pour les ordres LIMIT)
     Action action;              // Action à effectuer (NEW, MODIFY, CANCEL)
 };
@@ -40,6 +40,11 @@ private:
     Side parseSide(const std::string& sideStr);
     OrderType parseOrderType(const std::string& typeStr);
     Action parseAction(const std::string& actionStr);
+
+    // Verification des entrées
+    bool isValidInt(const std::string& valueIntStr); 
+    bool isValidDouble(const std::string& valueDoubleStr);
+    
 };
 
-#endif // DATALOADER_H
+#endif 
