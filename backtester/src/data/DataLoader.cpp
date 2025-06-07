@@ -41,6 +41,23 @@ bool DataLoader::isValidDouble(const std::string& inputStr)
     return (*endptr == '\0') && (val >= 0.0);
 }
 
+double DataLoader::parsePositiveDouble(const std::string& str, const std::string& fieldName)
+{
+    std::string trimmed = trim(str);
+    if (!isValidDouble(trimmed)) {
+        throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must be a positive number");
+    }
+    return std::stod(trimmed);
+}
+
+long long DataLoader::parsePositiveInt(const std::string& str, const std::string& fieldName)
+{
+    std::string trimmed = trim(str);
+    if (!isValidInt(trimmed)) {
+        throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must contain only digits");
+    }
+    return std::stoll(trimmed);
+}
 
 std::vector<Data> DataLoader::loadData()
 {
@@ -63,33 +80,21 @@ std::vector<Data> DataLoader::loadData()
         order.timestamp = std::stoll(trim(row.values[0]));
 
         // Validation de order_id avant conversion
-        std::string orderIdStr = trim(row.values[1]);
-        if (!isValidInt(orderIdStr)) {
-            throw std::invalid_argument("Invalid 'order_id' format: '" + orderIdStr + "' must contain only digits");
-        }
-        order.order_id = std::stoll(orderIdStr);
+        order.order_id = parsePositiveInt(row.values[1], "order_id");
 
         order.instrument = trim(row.values[2]);
         order.side = parseSide(trim(row.values[3]));
         order.type = parseOrderType(trim(row.values[4]));
 
         // Validation de quantity avant conversion
-        std::string quantityStr = trim(row.values[5]);
-        if (!isValidInt(quantityStr)) {
-            throw std::invalid_argument("Invalid 'quantity' format: '" + quantityStr + "' must contain only digits");
-        }
-        order.quantity = std::stoll(quantityStr);
+        order.quantity = parsePositiveInt(row.values[5], "quantity");
         
         // Pas de prix pour les MARKET orders
         std::string priceStr = trim(row.values[6]);
         if (priceStr.empty()) {
-            order.price = 0.0; 
-        }
-        else { 
-            if (!isValidDouble(priceStr)) {
-                throw std::invalid_argument("Invalid 'price' format: '" + priceStr);
-            }
-            order.price = std::stod(priceStr);
+            order.price = 0.0;
+        } else {
+            order.price = parsePositiveDouble(priceStr, "price");
         }
         
         order.action = parseAction(trim(row.values[7]));

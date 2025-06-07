@@ -43,7 +43,11 @@ private:
 
     // Verification des entrées
     bool isValidInt(const std::string& valueIntStr); 
+    long long parsePositiveInt(const std::string& str, const std::string& fieldName);
+
     bool isValidDouble(const std::string& valueDoubleStr);
+    double parsePositiveDouble(const std::string& str, const std::string& fieldName);
+
     
 };
 
