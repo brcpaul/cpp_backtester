@@ -59,6 +59,21 @@ long long DataLoader::parsePositiveInt(const std::string& str, const std::string
     return std::stoll(trimmed);
 }
 
+long long DataLoader::parseTimestamp(const std::string& str, const std::string& fieldName)
+{
+    std::string trimmed = trim(str);
+    if (!isValidInt(trimmed)) {
+        throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must contain only digits");
+    }
+
+    // Vérifie que le timestamp a exactement 19 chiffres (nanosecondes)
+    if (trimmed.length() != 19) {
+        throw std::invalid_argument("Invalid '" + fieldName + "' length: '"  + trimmed + "' must have exactly 19 digits (nanoseconds)");
+    }
+
+    return std::stoll(trimmed);
+}
+
 std::vector<Data> DataLoader::loadData()
 {
     std::vector<Data> data;
@@ -77,7 +92,7 @@ std::vector<Data> DataLoader::loadData()
         }
 
         Data order;
-        order.timestamp = std::stoll(trim(row.values[0]));
+        order.timestamp =  parseTimestamp(row.values[0], "timestamp");
 
         // Validation de order_id avant conversion
         order.order_id = parsePositiveInt(row.values[1], "order_id");

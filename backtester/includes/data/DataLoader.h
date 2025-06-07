@@ -48,6 +48,7 @@ private:
     bool isValidDouble(const std::string& valueDoubleStr);
     double parsePositiveDouble(const std::string& str, const std::string& fieldName);
 
+    long long parseTimestamp(const std::string& str, const std::string& fieldName);
     
 };
 
