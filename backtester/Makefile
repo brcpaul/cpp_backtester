@@ -10,6 +10,7 @@ BUILD_DIR = build
 SOURCES = $(SRC_DIR)/main.cpp \
           $(SRC_DIR)/data/CSVReader.cpp \
           $(SRC_DIR)/data/DataLoader.cpp \
+          $(SRC_DIR)/data/OrderGenerator.cpp \
           $(SRC_DIR)/core/MatchingEngine.cpp \
           $(SRC_DIR)/core/OrderBook.cpp \
           $(SRC_DIR)/core/Order.cpp \

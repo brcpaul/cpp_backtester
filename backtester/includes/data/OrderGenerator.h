@@ -1,0 +1,48 @@
+#ifndef ORDER_GENERATOR_H
+#define ORDER_GENERATOR_H
+
+#include <vector>
+#include <string>
+#include <random>
+
+struct RandomOrder {
+    long long timestamp;
+    int order_id;
+    std::string instrument;
+    std::string side;
+    std::string type;
+    int quantity;
+    double price;
+    std::string action;
+};
+
+class OrderGenerator {
+private:
+    std::vector<std::string> instruments;
+    std::vector<std::string> sides;
+    std::vector<std::string> types;
+    std::vector<std::string> actions;
+    
+    std::random_device rd;
+    std::mt19937 gen;
+    std::uniform_int_distribution<int> order_id_dist;
+    std::uniform_int_distribution<int> quantity_dist;
+    std::uniform_real_distribution<double> price_dist;
+
+    // Fonction privée pour arrondir à 2 décimales
+    double round_to_2_decimals(double value);
+
+public:
+    OrderGenerator();
+    
+    // Générateur d'horodatage en nanosecondes
+    long long current_timestamp_ns();
+    
+    // Génération d'un ordre fictif
+    RandomOrder generate_order();
+    
+    // Export vers CSV
+    void export_to_csv(const std::vector<RandomOrder>& orders, const std::string& filename);
+};
+
+#endif // ORDER_GENERATOR_H
