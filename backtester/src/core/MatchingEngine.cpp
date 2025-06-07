@@ -19,6 +19,14 @@ bool MatchingEngine::submitOrder(Order &order) {
     book.addOrder(order);
   }
 
+  // Si l'ordre n'est pas complètement exécuté et qu'il reste une quantité, 
+  // on l'ajoute au carnet et on log son statut PENDING
+  if (order.type == OrderType::LIMIT && order.quantity - order.executed_quantity > 0) {
+    order.status = OrderStatus::PENDING;
+    book.addOrder(order);
+    logger.logOrderPending(order, order.timestamp);
+  }
+
   orders[order.order_id] = order;
 
   return true;
@@ -31,7 +39,7 @@ Order MatchingEngine::matchOrder(Order &order, OrderBook &book) {
       bestOrder = book.getBestAsk();
     } else if (order.side == OrderSide::SELL && !book.bids.empty()) {
       bestOrder = book.getBestBid();
-    }
+    } 
 
     if (order.AcceptPrice(bestOrder.price) &&
         bestOrder.quantity - bestOrder.executed_quantity > 0) {

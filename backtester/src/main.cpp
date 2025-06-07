@@ -33,8 +33,8 @@ int main() {
 int main() {
 
   // 1. Charger les données CSV
-  //DataLoader loader("data/orders.csv");
-  DataLoader loader("data/random_orders.csv");
+  DataLoader loader("data/orders.csv");
+  // DataLoader loader("data/random_orders.csv");
   std::vector<Data> inputData = loader.loadData();
 
   std::ofstream fileOutput;

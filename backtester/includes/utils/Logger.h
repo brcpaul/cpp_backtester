@@ -22,6 +22,7 @@ public:
   void logOrderExecution(const Order &order, long long timestamp);
   void logOrderPartialExecution(const Order &order, int executed_quantity,
                                 double execution_price, long long timestamp);
+  void logOrderPending(const Order &order, long long timestamp);
   void logOrderCancellation(const Order &order, long long timestamp);
   void logOrderModification(const Order &order, long long timestamp);
   void logOrderRejection(const Order &order, long long timestamp);
