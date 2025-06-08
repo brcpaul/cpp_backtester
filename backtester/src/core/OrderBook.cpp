@@ -12,9 +12,92 @@ void OrderBook::addOrder(const Order &order) {
   }
 }
 
-bool OrderBook::modifyOrder(const Order &modifiedOrder) { return true; }
 
-bool OrderBook::cancelOrder(const Order &cancelledOrder) { return true; }
+bool OrderBook::modifyOrder(const Order &modifiedOrder) {
+  // Chercher l'ordre selon le côté
+  if (modifiedOrder.side == OrderSide::BUY) {
+    // Chercher dans les bids
+    for (auto &[price, ordersList] : bids) {
+      for (auto it = ordersList.begin(); it != ordersList.end(); ++it) {
+        if (it->order_id == modifiedOrder.order_id) {
+          // Ordre trouvé, le supprimer de sa position actuelle
+          ordersList.erase(it);
+          
+          // Si la liste devient vide, supprimer l'entrée de prix
+          if (ordersList.empty()) {
+            bids.erase(price);
+          }
+          
+          // Ajouter l'ordre modifié à sa nouvelle position
+          addOrder(modifiedOrder);
+          return true;
+        }
+      }
+    }
+  } else {
+    // Chercher dans les asks
+    for (auto &[price, ordersList] : asks) {
+      for (auto it = ordersList.begin(); it != ordersList.end(); ++it) {
+        if (it->order_id == modifiedOrder.order_id) {
+          // Ordre trouvé, le supprimer de sa position actuelle
+          ordersList.erase(it);
+          
+          // Si la liste devient vide, supprimer l'entrée de prix
+          if (ordersList.empty()) {
+            asks.erase(price);
+          }
+          
+          // Ajouter l'ordre modifié à sa nouvelle position
+          addOrder(modifiedOrder);
+          return true;
+        }
+      }
+    }
+  }
+  
+  return false; // Ordre non trouvé
+}
+
+bool OrderBook::cancelOrder(const Order &cancelledOrder) {
+  // Chercher l'ordre selon le côté
+  if (cancelledOrder.side == OrderSide::BUY) {
+    // Chercher dans les bids
+    for (auto &[price, ordersList] : bids) {
+      for (auto it = ordersList.begin(); it != ordersList.end(); ++it) {
+        if (it->order_id == cancelledOrder.order_id) {
+          // Ordre trouvé, le supprimer
+          ordersList.erase(it);
+          
+          // Si la liste devient vide, supprimer l'entrée de prix
+          if (ordersList.empty()) {
+            bids.erase(price);
+          }
+          
+          return true; // Ordre supprimé avec succès
+        }
+      }
+    }
+  } else {
+    // Chercher dans les asks
+    for (auto &[price, ordersList] : asks) {
+      for (auto it = ordersList.begin(); it != ordersList.end(); ++it) {
+        if (it->order_id == cancelledOrder.order_id) {
+          // Ordre trouvé, le supprimer
+          ordersList.erase(it);
+          
+          // Si la liste devient vide, supprimer l'entrée de prix
+          if (ordersList.empty()) {
+            asks.erase(price);
+          }
+          
+          return true; // Ordre supprimé avec succès
+        }
+      }
+    }
+  }
+  
+  return false; // Ordre non trouvé
+}
 
 std::string OrderBook::toString() const {
   std::ostringstream oss;
@@ -40,9 +123,16 @@ std::string OrderBook::toString() const {
 }
 
 Order OrderBook::getBestBid() const { 
-  return bids.begin()->second.front(); 
+  if (bids.empty()) {
+    return Order(); // Retourne un ordre par défaut
+  }
+  
+  return bids.rbegin()->second.front(); 
 }
 
 Order OrderBook::getBestAsk() const { 
+  if (asks.empty()) {
+    return Order(); // Retourne un ordre par défaut
+  }
   return asks.begin()->second.front(); 
 }

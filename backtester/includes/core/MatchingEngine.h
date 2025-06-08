@@ -35,7 +35,8 @@ private:
 
   Order matchOrder(Order &order, OrderBook &book);
 
-  void executeOrder(Order &order, int quantity, double price);
+  void executeOrder(Order &order, int quantity, double price, 
+                    long long counterparty_order_id);
 };
 
 #endif // MATCHING_ENGINE_H
