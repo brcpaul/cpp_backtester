@@ -1,11 +1,19 @@
 #include "../../includes/utils/Logger.h"
 
-Logger::Logger() : output_stream(&std::cout) {}
+Logger::Logger() : output_stream(&std::cout), header_written(false) {}
 
-Logger::Logger(std::ostream *output_stream) : output_stream(output_stream) {}
+Logger::Logger(std::ostream *output_stream) : output_stream(output_stream), header_written(false) {}
 
 void Logger::setOutputStream(std::ostream *output_stream) {
   this->output_stream = output_stream;
+  this->header_written = false;
+}
+
+void Logger::writeHeader() {
+  if (!header_written && output_stream) {
+    *output_stream << "timestamp,order_id,instrument,side,type,quantity,price,status,executed_quantity,execution_price,counterparty_id" << std::endl;
+    header_written = true;
+  }
 }
 
 void Logger::logNewOrder(const Order &order, long long timestamp) {
@@ -19,6 +27,7 @@ void Logger::logNewOrder(const Order &order, long long timestamp) {
 void Logger::logOrderExecution(const Order &order, int executed_quantity,
                                double execution_price, long long counterparty_id, long long timestamp) {
   std::ostringstream oss;
+  int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << order.quantity << ","
       << order.price << ",EXECUTED," << executed_quantity << ","
@@ -38,7 +47,9 @@ void Logger::logOrderPartialExecution(const Order &order, int executed_quantity,
   *output_stream << oss.str() << std::endl;
 }
 
-void Logger::logOrderPending(const Order &order, long long timestamp) {
+void Logger::logOrderPending(const Order &order, 
+                              long long timestamp) {
+  writeHeader();
   std::ostringstream oss;
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
