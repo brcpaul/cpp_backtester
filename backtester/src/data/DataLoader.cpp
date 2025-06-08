@@ -7,10 +7,8 @@
 #include <sstream>
 #include <unordered_set>
 
-DataLoader::DataLoader(const std::string filename) : filename(filename)
-{
-    
-}
+// Constructeur
+DataLoader::DataLoader(const std::string filename) : filename(filename) {}
 
 // Fonction utilitaire pour nettoyer les chaînes
 std::string DataLoader::trim(const std::string& str) {
@@ -23,13 +21,12 @@ std::string DataLoader::trim(const std::string& str) {
 }
 
 // Verification des entrées 
-bool DataLoader::isValidInt(const std::string& inputStr)
-{   // Vérifie si order_id/quantity est un nombre entier positif
+bool DataLoader::isValidInt(const std::string& inputStr) {   // Vérifie si order_id/quantity est un nombre entier positif
     return !inputStr.empty() && std::all_of(inputStr.begin(), inputStr.end(), ::isdigit);
 }
 
-bool DataLoader::isValidDouble(const std::string& inputStr)
-{   // Vérifie si price est un nombre positif
+bool DataLoader::isValidDouble(const std::string& inputStr) {   
+    // Vérifie si price est un nombre positif
     if (inputStr.empty())
         return false;
 
@@ -42,8 +39,7 @@ bool DataLoader::isValidDouble(const std::string& inputStr)
     return (*endptr == '\0') && (val >= 0.0);
 }
 
-double DataLoader::parsePositiveDouble(const std::string& str, const std::string& fieldName)
-{
+double DataLoader::parsePositiveDouble(const std::string& str, const std::string& fieldName) {
     std::string trimmed = trim(str);
     if (!isValidDouble(trimmed)) {
         throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must be a positive number");
@@ -51,8 +47,7 @@ double DataLoader::parsePositiveDouble(const std::string& str, const std::string
     return std::stod(trimmed);
 }
 
-long long DataLoader::parsePositiveInt(const std::string& str, const std::string& fieldName)
-{
+long long DataLoader::parsePositiveInt(const std::string& str, const std::string& fieldName) {
     std::string trimmed = trim(str);
     if (!isValidInt(trimmed)) {
         throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must contain only digits");
@@ -60,8 +55,7 @@ long long DataLoader::parsePositiveInt(const std::string& str, const std::string
     return std::stoll(trimmed);
 }
 
-long long DataLoader::parseTimestamp(const std::string& str, const std::string& fieldName)
-{
+long long DataLoader::parseTimestamp(const std::string& str, const std::string& fieldName) {
     std::string trimmed = trim(str);
     if (!isValidInt(trimmed)) {
         throw std::invalid_argument("Invalid '" + fieldName + "' format: '" + trimmed + "' must contain only digits");
@@ -75,8 +69,7 @@ long long DataLoader::parseTimestamp(const std::string& str, const std::string& 
     return std::stoll(trimmed);
 }
 
-std::vector<Data> DataLoader::loadData()
-{
+std::vector<Data> DataLoader::loadData() {
     std::vector<Data> data;
     CSVReader reader(filename);
     std::vector<CSVRow> rows = reader.readCSV();
@@ -96,24 +89,15 @@ std::vector<Data> DataLoader::loadData()
 
         Data order;
         order.timestamp =  parseTimestamp(row.values[0], "timestamp");
-
-        // Validation de order_id avant conversion
         order.order_id = parsePositiveInt(row.values[1], "order_id");
-
         order.instrument = trim(row.values[2]);
         order.side = parseSide(trim(row.values[3]));
         order.type = parseOrderType(trim(row.values[4]));
-
-        // Validation de quantity avant conversion
         order.quantity = parsePositiveInt(row.values[5], "quantity");
         
         // Pas de prix pour les MARKET orders
         std::string priceStr = trim(row.values[6]);
-        if (priceStr.empty()) {
-            order.price = 0.0;
-        } else {
-            order.price = parsePositiveDouble(priceStr, "price");
-        }
+        order.price = priceStr.empty() ? 0.0 : parsePositiveDouble(priceStr, "price");
         
         order.action = parseAction(trim(row.values[7]));
 
@@ -130,43 +114,30 @@ std::vector<Data> DataLoader::loadData()
     return data;
 }
 
-Side DataLoader::parseSide(const std::string& sideStr)
-{
+Side DataLoader::parseSide(const std::string& sideStr) {   
     std::string upperSide = sideStr;
     std::transform(upperSide.begin(), upperSide.end(), upperSide.begin(), ::toupper);
     
-    if (upperSide == "BUY")
-        return Side::BUY;
-    else if (upperSide == "SELL")
-        return Side::SELL;
-    else
-        throw std::invalid_argument("Error in column 'side', error value: " + sideStr);
+    if (upperSide == "BUY") return Side::BUY;
+    if (upperSide == "SELL") return Side::SELL;
+    throw std::invalid_argument("Error in column 'side', error value: " + sideStr);
 }
 
-OrderType DataLoader::parseOrderType(const std::string& typeStr)
-{
+OrderType DataLoader::parseOrderType(const std::string& typeStr) {
     std::string upperType = typeStr;
     std::transform(upperType.begin(), upperType.end(), upperType.begin(), ::toupper);
     
-    if (upperType == "LIMIT")
-        return OrderType::LIMIT;
-    else if (upperType == "MARKET")
-        return OrderType::MARKET;
-    else
-        throw std::invalid_argument("Error in column 'order type',  error value: " + typeStr);
+    if (upperType == "LIMIT") return OrderType::LIMIT;
+    if (upperType == "MARKET") return OrderType::MARKET;
+    throw std::invalid_argument("Error in column 'order type',  error value: " + typeStr);
 }
 
-Action DataLoader::parseAction(const std::string& actionStr)
-{
+Action DataLoader::parseAction(const std::string& actionStr) {
     std::string upperAction = actionStr;
     std::transform(upperAction.begin(), upperAction.end(), upperAction.begin(), ::toupper);
     
-    if (upperAction == "NEW")
-        return Action::NEW;
-    else if (upperAction == "MODIFY")
-        return Action::MODIFY;
-    else if (upperAction == "CANCEL")
-        return Action::CANCEL;
-    else
-        throw std::invalid_argument("Error in column 'action',  error value: " + actionStr);
+    if (upperAction == "NEW") return Action::NEW;
+    if (upperAction == "MODIFY") return Action::MODIFY;
+    if (upperAction == "CANCEL") return Action::CANCEL;
+    throw std::invalid_argument("Error in column 'action',  error value: " + actionStr);
 }

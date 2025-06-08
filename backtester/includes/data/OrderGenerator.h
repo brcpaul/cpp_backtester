@@ -28,15 +28,18 @@ private:
     std::uniform_int_distribution<int> order_id_dist;
     std::uniform_int_distribution<int> quantity_dist;
     std::uniform_real_distribution<double> price_dist;
+    std::uniform_int_distribution<size_t> instrument_dist;
+    std::uniform_int_distribution<size_t> side_dist;
+    std::uniform_int_distribution<size_t> type_dist;
+    std::uniform_int_distribution<size_t> action_dist;
 
+    // Générateur d'horodatage en nanosecondes
+    long long current_timestamp_ns();
     // Fonction privée pour arrondir à 2 décimales
     double round_to_2_decimals(double value);
 
 public:
     OrderGenerator();
-    
-    // Générateur d'horodatage en nanosecondes
-    long long current_timestamp_ns();
     
     // Génération d'un ordre fictif
     RandomOrder generate_order();
@@ -45,4 +48,4 @@ public:
     void export_to_csv(const std::vector<RandomOrder>& orders, const std::string& filename);
 };
 
-#endif // ORDER_GENERATOR_H
+#endif 
