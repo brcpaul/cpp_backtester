@@ -5,6 +5,7 @@
 #include <algorithm> 
 #include <cctype> 
 #include <sstream>
+#include <unordered_set>
 
 DataLoader::DataLoader(const std::string filename) : filename(filename)
 {
@@ -82,6 +83,8 @@ std::vector<Data> DataLoader::loadData()
 
     bool firstRow = true;
 
+    std::unordered_set<long long> newOrderIds; // Pour suivre les order_id avec action NEW
+
     for (CSVRow row : rows)
     {
         // Skip the header row
@@ -113,6 +116,14 @@ std::vector<Data> DataLoader::loadData()
         }
         
         order.action = parseAction(trim(row.values[7]));
+
+        // Vérification des doublons pour les ordres NEW
+        if (order.action == Action::NEW) {
+            if (newOrderIds.find(order.order_id) != newOrderIds.end()) {
+                throw std::invalid_argument("Duplicate order_id " + std::to_string(order.order_id) + " with action NEW found\nPlease ensure that each NEW order has a unique order_id.");
+            }
+            newOrderIds.insert(order.order_id);
+        }
         
         data.push_back(order);
     }
