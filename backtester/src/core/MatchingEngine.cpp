@@ -13,80 +13,72 @@ void MatchingEngine::setOutputStream(std::ostream *output_stream) {
 bool MatchingEngine::submitOrder(Order &order) {
   OrderBook &book = books[order.instrument];
 
-  order = matchOrder(order, book);
-
-  if (order.type == OrderType::LIMIT && order.quantity > 0) {
-    book.addOrder(order);
-  }
-
-  // Si l'ordre n'est pas complètement exécuté et qu'il reste une quantité, 
-  // on l'ajoute au carnet et on log son statut PENDING
-  if (order.type == OrderType::LIMIT && order.quantity - order.executed_quantity > 0) {
-    order.status = OrderStatus::PENDING;
-    book.addOrder(order);
-    logger.logOrderPending(order, order.timestamp);
-  }
-
+  // Store the order first so we have a stable reference
   orders[order.order_id] = order;
+  Order* orderPtr = &orders[order.order_id];
+
+  *orderPtr = matchOrder(*orderPtr, book);
+
+  // If the order isn't fully executed and there's remaining quantity,
+  // add it to the book and log its PENDING status
+  if (orderPtr->type == OrderType::LIMIT &&
+      orderPtr->quantity - orderPtr->executed_quantity > 0) {
+    orderPtr->status = OrderStatus::PENDING;
+    book.addOrder(orderPtr);
+    logger.logOrderPending(*orderPtr, orderPtr->timestamp);
+  }
 
   return true;
 }
 
 Order MatchingEngine::matchOrder(Order &order, OrderBook &book) {
   while (order.quantity - order.executed_quantity > 0) {
-    Order bestOrder;
+    Order* bestOrder = nullptr;
     if (order.side == OrderSide::BUY && !book.asks.empty()) {
       bestOrder = book.getBestAsk();
     } else if (order.side == OrderSide::SELL && !book.bids.empty()) {
       bestOrder = book.getBestBid();
-    } 
-
-    if (order.AcceptPrice(bestOrder.price) &&
-        bestOrder.quantity - bestOrder.executed_quantity > 0) {
-      int quantity = std::min(bestOrder.quantity - bestOrder.executed_quantity,
-                              order.quantity - order.executed_quantity);
-      executeOrder(order, quantity, bestOrder.price);
-      executeOrder(bestOrder, quantity, bestOrder.price);
-
-      if (bestOrder.quantity - bestOrder.executed_quantity == 0) {
-        if (order.side == OrderSide::BUY) {
-          book.asks[bestOrder.price].pop_front();
-          if (book.asks[bestOrder.price].empty()) {
-            book.asks.erase(bestOrder.price);
-          }
-        } else {
-          book.bids[bestOrder.price].pop_front();
-          if (book.bids[bestOrder.price].empty()) {
-            book.bids.erase(bestOrder.price);
-          }
-        }
-      }
     }
-    return order;
+
+    if (!bestOrder || bestOrder->price == 0) {
+      break;
+    }
+
+    if (order.AcceptPrice(bestOrder->price) &&
+        bestOrder->quantity - bestOrder->executed_quantity > 0) {
+      int quantity = std::min(bestOrder->quantity - bestOrder->executed_quantity,
+                            order.quantity - order.executed_quantity);
+      executeOrder(order, quantity, bestOrder->price, bestOrder->order_id);
+      executeOrder(*bestOrder, quantity, bestOrder->price, order.order_id);
+    } else {
+      break;
+    }
   }
+  return order;
 }
 
-void MatchingEngine::executeOrder(Order &order, int quantity, double price) {
+void MatchingEngine::executeOrder(Order &order, int quantity, double price, long long counterparty_id) {
   order.executed_quantity += quantity;
   order.sum_execution_price += price * quantity;
   order.execution_price = order.sum_execution_price / order.executed_quantity;
 
   if (order.executed_quantity == order.quantity) {
     order.status = OrderStatus::EXECUTED;
-    logger.logOrderExecution(order, order.timestamp);
+    logger.logOrderExecution(order, quantity, price, counterparty_id, order.timestamp);
+    books[order.instrument].removeOrder(order);
   } else {
     order.status = OrderStatus::PARTIALLY_EXECUTED;
-    logger.logOrderPartialExecution(order, quantity, price, order.timestamp);
+    logger.logOrderPartialExecution(order, quantity, price, counterparty_id, order.timestamp);
   }
 }
 
 bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
-
-  if (orders.find(modifiedOrder.order_id) == orders.end()) {
+  auto it = orders.find(modifiedOrder.order_id);
+  if (it == orders.end()) {
     return false;
   }
 
-  Order &originalOrder = orders[modifiedOrder.order_id];
+  Order &originalOrder = it->second;
 
   if (originalOrder.type == OrderType::MARKET) {
     return false;
@@ -100,40 +92,18 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
   OrderBook &book = books[originalOrder.instrument];
 
   if (modifiedOrder.price != originalOrder.price) {
-
-    std::list<Order> &ordersAtPrice = (originalOrder.side == OrderSide::BUY)
-                                          ? book.bids[originalOrder.price]
-                                          : book.asks[originalOrder.price];
-
-    for (std::list<Order>::iterator it = ordersAtPrice.begin();
-         it != ordersAtPrice.end(); ++it) {
-      if (it->order_id == originalOrder.order_id) {
-        ordersAtPrice.erase(it);
-        break;
-      }
-    }
-
-    if (ordersAtPrice.empty()) {
-      if (originalOrder.side == OrderSide::BUY) {
-        book.bids.erase(originalOrder.price);
-      } else {
-        book.asks.erase(originalOrder.price);
-      }
-    }
-
+    book.removeOrder(originalOrder);
     originalOrder.price = modifiedOrder.price;
-
     originalOrder = matchOrder(originalOrder, book);
-    if (originalOrder.quantity > 0) {
-      book.addOrder(originalOrder);
+    
+    if (originalOrder.quantity - originalOrder.executed_quantity > 0) {
+      book.addOrder(&originalOrder);
     }
   }
 
   if (modifiedOrder.quantity != originalOrder.quantity) {
-
     if (modifiedOrder.quantity - originalOrder.executed_quantity >= 0) {
-      originalOrder.quantity =
-          modifiedOrder.quantity - originalOrder.executed_quantity;
+      originalOrder.quantity = modifiedOrder.quantity;
     } else {
       return false;
     }
@@ -143,12 +113,12 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
 }
 
 bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
-
-  if (orders.find(cancelledOrder.order_id) == orders.end()) {
+  auto it = orders.find(cancelledOrder.order_id);
+  if (it == orders.end()) {
     return false;
   }
 
-  Order &originalOrder = orders[cancelledOrder.order_id];
+  Order &originalOrder = it->second;
 
   if (originalOrder.status == OrderStatus::EXECUTED ||
       originalOrder.status == OrderStatus::CANCELED) {
@@ -159,8 +129,9 @@ bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
     return false;
   }
 
+  books[originalOrder.instrument].removeOrder(originalOrder);
   originalOrder.status = OrderStatus::CANCELED;
-  // logOrderCancellation(originalOrder, originalOrder.timestamp);
+  logger.logOrderCancellation(originalOrder, originalOrder.timestamp);
   return true;
 }
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "data/CSVReader.h"
+#include "../../includes/data/CSVReader.h"
 
 CSVReader::CSVReader(const std::string filename) : filename(filename)
 {

@@ -19,9 +19,10 @@ public:
   Logger(std::ostream *output_stream);
 
   void logNewOrder(const Order &order, long long timestamp);
-  void logOrderExecution(const Order &order, long long timestamp);
+  void logOrderExecution(const Order &order, int executed_quantity,
+                         double execution_price, long long counterparty_id, long long timestamp);
   void logOrderPartialExecution(const Order &order, int executed_quantity,
-                                double execution_price, long long timestamp);
+                                double execution_price, long long counterparty_id, long long timestamp);
   void logOrderPending(const Order &order, long long timestamp);
   void logOrderCancellation(const Order &order, long long timestamp);
   void logOrderModification(const Order &order, long long timestamp);

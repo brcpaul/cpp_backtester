@@ -13,6 +13,10 @@ Order::Order(long long id, const std::string &instr, OrderSide s, OrderType t,
       execution_price(execution_price),
       sum_execution_price(sum_execution_price) {}
 
+bool Order::operator==(const Order& other) const {
+    return order_id == other.order_id;
+}
+
 std::ostream &operator<<(std::ostream &os, OrderSide side) {
   return os << (side == OrderSide::BUY ? "BUY" : "SELL");
 }

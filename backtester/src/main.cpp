@@ -42,7 +42,8 @@ int main() {
 
   MatchingEngine engine;
 
-  engine.setOutputStream(&fileOutput);
+  // engine.setOutputStream(&fileOutput);
+  engine.setOutputStream(&std::cout);
 
   // 3. On traite chaque ligne du fichier CSV
   for (const auto &data : inputData) {

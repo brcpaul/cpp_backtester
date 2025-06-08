@@ -29,13 +29,14 @@ private:
   // Chaque instrument a son OrderBook
   std::unordered_map<std::string, OrderBook> books;
 
+  // Store orders by value
   std::unordered_map<long, Order> orders;
 
   Logger logger;
 
   Order matchOrder(Order &order, OrderBook &book);
 
-  void executeOrder(Order &order, int quantity, double price);
+  void executeOrder(Order &order, int quantity, double price, long long counterparty_id);
 };
 
 #endif // MATCHING_ENGINE_H

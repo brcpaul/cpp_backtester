@@ -37,6 +37,8 @@ public:
   Order(long long id, const std::string &instr, OrderSide s, OrderType t,
         double p, int q, long long ts, int executed_quantity = 0,
         double execution_price = 0.0, double sum_execution_price = 0.0);
+        
+  bool operator==(const Order& other) const;
 };
 
 #endif // ORDER_H
