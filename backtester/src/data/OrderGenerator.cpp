@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <chrono>
 #include <iomanip>
 #include <cmath>
 #include <stdexcept>
@@ -22,13 +21,13 @@ OrderGenerator::OrderGenerator()
       action_dist(0, actions.size() - 1) {}
 
 long long OrderGenerator::current_timestamp_ns() {
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+  auto now = std::chrono::system_clock::now();
+  auto duration = now.time_since_epoch();
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 }
 
 double OrderGenerator::round_to_2_decimals(double value) {
-    return std::round(value * 100.0) / 100.0;
+  return std::round(value * 100.0) / 100.0;
 }
 
 RandomOrder OrderGenerator::generate_order() {
