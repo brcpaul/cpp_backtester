@@ -108,7 +108,7 @@ To run the unit tests, execute the following command:
 
 ## 📁 Project Structure
 
-![](docs/file-tree.drawio.svg)
+![](docs/cpp.svg)
 
 ---
 

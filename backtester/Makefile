@@ -42,7 +42,6 @@ PERFSOURCES = $(PERF_DIR)/main.cpp \
               $(PERF_DIR)/data/DataLoaderPerformance.cpp \
               $(PERF_DIR)/data/OrderGeneratorPerformance.cpp \
               $(PERF_DIR)/core/MatchingEnginePerformance.cpp \
-              $(PERF_DIR)/core/OrderBook.cpp \
 
 # Cibles
 TARGET = main
