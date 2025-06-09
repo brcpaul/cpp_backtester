@@ -3,10 +3,9 @@
 #include "../includes/data/CSVReader.h"
 #include "../includes/data/DataLoader.h"
 #include "../includes/utils/Logger.h"
+#include "../includes/data/OrderGenerator.h"
 
 #include <iostream>
-
-#include "../includes/data/OrderGenerator.h"
 #include <vector>
 // int main() {
     
