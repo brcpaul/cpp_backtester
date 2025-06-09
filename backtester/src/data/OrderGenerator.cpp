@@ -33,7 +33,6 @@ double OrderGenerator::round_to_2_decimals(double value) {
 RandomOrder OrderGenerator::generate_order() {
   RandomOrder order;
   order.timestamp = current_timestamp_ns();
-  order.order_id = last_order_id++;
   order.instrument = instruments[instrument_dist(gen)];
   order.side = sides[side_dist(gen)];
   order.type = types[type_dist(gen)];
@@ -49,6 +48,11 @@ RandomOrder OrderGenerator::generate_order() {
     order.price += 0.06;
   }
   order.action = actions[action_dist(gen)];
+  if (order.action == "NEW") {
+    order.order_id = last_order_id++;
+  } else {
+    order.order_id = order_id_dist(gen);
+  }
 
   return order;
 }

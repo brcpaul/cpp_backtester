@@ -29,13 +29,13 @@ private:
     
     std::random_device rd;
     std::mt19937 gen;
+    std::uniform_int_distribution<int> order_id_dist;
     std::uniform_int_distribution<int> quantity_dist;
     std::uniform_real_distribution<double> price_dist;
     std::uniform_int_distribution<size_t> instrument_dist;
     std::uniform_int_distribution<size_t> side_dist;
     std::uniform_int_distribution<size_t> type_dist;
     std::uniform_int_distribution<size_t> action_dist;
-
     std::unordered_map<std::string, double> last_instrument_price;
     int last_order_id;
 
