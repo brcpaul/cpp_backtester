@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <unordered_map>
 
 struct RandomOrder {
     long long timestamp;
