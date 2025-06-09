@@ -4,6 +4,10 @@
 #include <iterator>
 #include <sstream>
 
+Logger& MatchingEngine::getLogger() {
+    return logger;
+}
+
 MatchingEngine::MatchingEngine() {}
 
 void MatchingEngine::setOutputStream(std::ostream *output_stream) {

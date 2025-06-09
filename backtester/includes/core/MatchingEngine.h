@@ -25,6 +25,9 @@ public:
 
   void setOutputStream(std::ostream *output_stream);
 
+  // Accéder au logger
+  Logger& getLogger();
+
 private:
   // Chaque instrument a son OrderBook
   std::unordered_map<std::string, OrderBook> books;
