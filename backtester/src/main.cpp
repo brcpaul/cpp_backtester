@@ -3,37 +3,20 @@
 #include "../includes/data/CSVReader.h"
 #include "../includes/data/DataLoader.h"
 #include "../includes/utils/Logger.h"
+#include "../includes/data/OrderGenerator.h"
 
 #include <iostream>
-
-#include "../includes/data/OrderGenerator.h"
 #include <vector>
-// int main() {
-    
-    OrderGenerator generator;
-    
-    // Nombre d'ordres à générer
-    const int num_orders = 100000;
-    std::vector<RandomOrder> orders;
-    
-    // Génération des ordres
-    for (int i = 0; i < num_orders; ++i) {
-        orders.push_back(generator.generate_order());
-    }
-    
-    // Export vers CSV
-    generator.export_to_csv(orders, "data/random_orders.csv");
-    
-//     return 0;
-// }
-
+#include <fstream>
 
 int main() {
-
     // 1. Charger les données CSV / Créer des ordres aléatoires
     const bool random_orders = false;
+
+    // Déclaration de loader avant le if pour qu'il soit accessible ensuite
+    DataLoader loader(random_orders ? "data/random_orders.csv" : "data/orders.csv");
+
     if (random_orders) {
-        
         OrderGenerator generator;
 
         // Nombre d'ordres à générer
@@ -42,49 +25,45 @@ int main() {
 
         // Génération des ordres
         for (int i = 0; i < num_orders; ++i) {
-        orders.push_back(generator.generate_order());
+            orders.push_back(generator.generate_order());
         }
 
         // Export vers CSV
         generator.export_to_csv(orders, "data/random_orders.csv");
 
-        DataLoader loader("data/random_orders.csv");
-    } else {
-        DataLoader loader("data/orders.csv");
-    }    
+        // Recharge les données générées
+        loader = DataLoader("data/random_orders.csv");
+    }
 
+    // Chargement des données
     std::vector<Data> inputData = loader.loadData();
 
-    std::ofstream fileOutput;
-    fileOutput.open("output.csv");
+    std::ofstream fileOutput("output.csv");
 
     MatchingEngine engine;
-
     engine.setOutputStream(&fileOutput);
-    // engine.setOutputStream(&std::cout);
+    // engine.setOutputStream(&std::cout);  // alternative pour sortie console
 
     // 2. On traite chaque ligne du fichier CSV
     for (const auto &data : inputData) {
+        OrderSide orderSide = (data.side == Side::BUY) ? OrderSide::BUY : OrderSide::SELL;
 
-    // Convertir Side en OrderSide
-    OrderSide orderSide =
-        (data.side == Side::BUY) ? OrderSide::BUY : OrderSide::SELL;
-
-    // On créé l’ordre
-    Order order;
-    order = Order(data.order_id, data.instrument, orderSide, data.type, data.price,
+        // Création de l'ordre
+        Order order(data.order_id, data.instrument, orderSide, data.type, data.price,
                     static_cast<int>(data.quantity), data.timestamp);
 
-    // Méthodes en fonction de l’action
-    if (data.action == Action::NEW) {
-        engine.submitOrder(order);
-    } else if (data.action == Action::MODIFY) {
-        engine.modifyOrder(order);
-    } else if (data.action == Action::CANCEL) {
-        engine.cancelOrder(order);
-    }
+        // Actions selon le type
+        if (data.action == Action::NEW) {
+            engine.submitOrder(order);
+        } else if (data.action == Action::MODIFY) {
+            engine.modifyOrder(order);
+        } else if (data.action == Action::CANCEL) {
+            engine.cancelOrder(order);
+        }
     }
 
-    // 5. Etat final du carnet d’ordres pour debugger
+    // 5. État final du carnet d’ordres pour debugger
     std::cout << engine.getOrderBook("AAPL").toString() << std::endl;
+
+    return 0;
 }

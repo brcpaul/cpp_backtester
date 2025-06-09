@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 OrderGenerator::OrderGenerator()
     : instruments{"AAPL", "EURUSD", "BTCUSD", "TSLA"}, sides{"BUY", "SELL"},
