@@ -20,19 +20,19 @@ SOURCES = $(SRC_DIR)/main.cpp \
 # Sources sans main.cpp (utilisées pour les tests)
 LIB_SOURCES = $(SRC_DIR)/data/CSVReader.cpp \
               $(SRC_DIR)/data/DataLoader.cpp \
-              $(SRC_DIR)/data/DataConverter.cpp \
-              $(SRC_DIR)/core/MatchingEngine.cpp \
-              $(SRC_DIR)/core/OrderBook.cpp \
-              $(SRC_DIR)/core/Order.cpp \
+              $(SRC_DIR)/data/OrderGenerator.cpp \
+            #   $(SRC_DIR)/core/MatchingEngine.cpp \
+            #   $(SRC_DIR)/core/OrderBook.cpp \
+            #   $(SRC_DIR)/core/Order.cpp \
 
 # Fichiers de test avec leur main
 TESTSOURCES = $(TEST_DIR)/main.cpp \
               $(TEST_DIR)/data/CSVReaderTest.cpp \
               $(TEST_DIR)/data/DataLoaderTest.cpp \
-              $(TEST_DIR)/data/DataConverterTest.cpp \
-              $(TEST_DIR)/core/BookSide.cpp \
-              $(TEST_DIR)/core/OrderBook.cpp \
-              $(TEST_DIR)/core/Order.cpp \
+              $(TEST_DIR)/data/OrderGeneratorTest.cpp \
+            #   $(TEST_DIR)/core/BookSide.cpp \
+            #   $(TEST_DIR)/core/OrderBook.cpp \
+            #   $(TEST_DIR)/core/Order.cpp \
 
 # Cibles
 TARGET = main
