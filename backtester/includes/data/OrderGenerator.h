@@ -18,6 +18,9 @@ struct RandomOrder {
 
 class OrderGenerator {
 private:
+
+    friend void testRounding();
+    
     std::vector<std::string> instruments;
     std::vector<std::string> sides;
     std::vector<std::string> types;

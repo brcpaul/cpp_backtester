@@ -66,5 +66,5 @@ void OrderGenerator::export_to_csv(const std::vector<RandomOrder>& orders, const
              << order.action << '\n';
     }
 
-    std::cout << "✅ Fichier CSV généré avec succès : " << filename << std::endl;
+    std::cout << "Fichier CSV généré avec succès : " << filename << std::endl;
 }

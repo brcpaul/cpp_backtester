@@ -5,15 +5,15 @@
 
 void runCSVReaderTests();
 void runDataLoaderTests();
-void runCSVWriterTests();
-void runDataConverterTests();
-void runBookSideTests();
+void runOrderGeneratorTests();
+// void runBookSideTests();
 
 int main() {
   std::cout << "=== Lancement des tests ===\n\n";
 
     runCSVReaderTests();
     runDataLoaderTests();
+    runOrderGeneratorTests();
   // runBookSideTests();
 
   std::cout << "\n=== Tous les tests terminés ===\n";
