@@ -95,12 +95,7 @@ std::vector<Data> DataLoader::loadData() {
         order.type = parseOrderType(trim(row.values[4]));
         order.quantity = parsePositiveInt(row.values[5], "quantity");
         
-        // Pas de prix pour les MARKET orders
-        std::string priceStr = trim(row.values[6]);
-        order.price = priceStr.empty() ? 0.0 : parsePositiveDouble(priceStr, "price");
-        
         order.action = parseAction(trim(row.values[7]));
-
         // Vérification des doublons pour les ordres NEW
         if (order.action == Action::NEW) {
             if (newOrderIds.find(order.order_id) != newOrderIds.end()) {
@@ -108,6 +103,24 @@ std::vector<Data> DataLoader::loadData() {
             }
             newOrderIds.insert(order.order_id);
         }
+        
+        // Gestion du prix selon le type d'ordre
+        std::string priceStr = trim(row.values[6]);
+        if (order.action == Action::CANCEL) {
+            // Pour CANCEL, le prix n'est pas requis (peu importe le type)
+            order.price = 0.0;
+        } else if (order.type == OrderType::MARKET) {
+            // Pour les ordres MARKET, le prix peut être vide (on met 0.0 par défaut)
+            order.price = 0.0;
+        } else if (order.type == OrderType::LIMIT) {
+            // Pour les ordres LIMIT, le prix est obligatoire
+            if (priceStr.empty()) {
+                throw std::invalid_argument("Price is required for LIMIT orders but was empty for order_id: " + std::to_string(order.order_id));
+            }
+            order.price = parsePositiveDouble(priceStr, "price");
+        }
+
+        
         
         data.push_back(order);
     }

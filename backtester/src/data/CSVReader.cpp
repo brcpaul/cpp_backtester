@@ -14,7 +14,14 @@ std::vector<CSVRow> CSVReader::readCSV() {
     std::vector<CSVRow> rows;
     std::string line;
     while (std::getline(file, line)) {
-        rows.push_back(split(line, ','));
+        if (line.empty()) {
+            // Si la ligne est vide, on ajoute une ligne avec une seule colonne vide
+            CSVRow emptyRow;
+            emptyRow.values.push_back("");
+            rows.push_back(emptyRow);
+        } else {
+            rows.push_back(split(line, ','));
+        }
     }
     return rows;
 }
