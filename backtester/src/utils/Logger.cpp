@@ -65,3 +65,11 @@ void Logger::logOrderCancellation(const Order &order, long long timestamp) {
       << order.price << ",CANCELED,0,0,0";
   *output_stream << oss.str() << std::endl;
 }
+
+void Logger::logOrderRejection(const Order &order, long long timestamp) {
+  std::ostringstream oss;
+  oss << timestamp << "," << order.order_id << "," << order.instrument << ","
+      << order.side << "," << order.type << "," << order.quantity << ","
+      << order.price << ",REJECTED,0,0,0";
+  *output_stream << oss.str() << std::endl;
+}

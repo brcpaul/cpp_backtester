@@ -4,9 +4,7 @@
 #include <iterator>
 #include <sstream>
 
-Logger& MatchingEngine::getLogger() {
-    return logger;
-}
+Logger &MatchingEngine::getLogger() { return logger; }
 
 MatchingEngine::MatchingEngine() {}
 
@@ -19,7 +17,7 @@ bool MatchingEngine::submitOrder(Order &order) {
 
   // Store the order first so we have a stable reference
   orders[order.order_id] = order;
-  Order* orderPtr = &orders[order.order_id];
+  Order *orderPtr = &orders[order.order_id];
 
   *orderPtr = matchOrder(*orderPtr, book);
 
@@ -37,7 +35,7 @@ bool MatchingEngine::submitOrder(Order &order) {
 
 Order MatchingEngine::matchOrder(Order &order, OrderBook &book) {
   while (order.quantity - order.executed_quantity > 0) {
-    Order* bestOrder = nullptr;
+    Order *bestOrder = nullptr;
     if (order.side == OrderSide::BUY && !book.asks.empty()) {
       bestOrder = book.getBestAsk();
     } else if (order.side == OrderSide::SELL && !book.bids.empty()) {
@@ -50,8 +48,9 @@ Order MatchingEngine::matchOrder(Order &order, OrderBook &book) {
 
     if (order.AcceptPrice(bestOrder->price) &&
         bestOrder->quantity - bestOrder->executed_quantity > 0) {
-      int quantity = std::min(bestOrder->quantity - bestOrder->executed_quantity,
-                            order.quantity - order.executed_quantity);
+      int quantity =
+          std::min(bestOrder->quantity - bestOrder->executed_quantity,
+                   order.quantity - order.executed_quantity);
       executeOrder(order, quantity, bestOrder->price, bestOrder->order_id);
       executeOrder(*bestOrder, quantity, bestOrder->price, order.order_id);
     } else {
@@ -61,43 +60,41 @@ Order MatchingEngine::matchOrder(Order &order, OrderBook &book) {
   return order;
 }
 
-void MatchingEngine::executeOrder(Order &order, int quantity, double price, long long counterparty_id) {
+void MatchingEngine::executeOrder(Order &order, int quantity, double price,
+                                  long long counterparty_id) {
   order.executed_quantity += quantity;
   order.sum_execution_price += price * quantity;
   order.execution_price = order.sum_execution_price / order.executed_quantity;
 
   if (order.executed_quantity == order.quantity) {
     order.status = OrderStatus::EXECUTED;
-    logger.logOrderExecution(order, quantity, price, counterparty_id, order.timestamp);
+    logger.logOrderExecution(order, quantity, price, counterparty_id,
+                             order.timestamp);
     books[order.instrument].removeOrder(order);
   } else {
     order.status = OrderStatus::PARTIALLY_EXECUTED;
-    logger.logOrderPartialExecution(order, quantity, price, counterparty_id, order.timestamp);
+    logger.logOrderPartialExecution(order, quantity, price, counterparty_id,
+                                    order.timestamp);
   }
 }
 
 bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
   auto it = orders.find(modifiedOrder.order_id);
   if (it == orders.end()) {
+    logger.logOrderRejection(modifiedOrder, modifiedOrder.timestamp);
     return false;
   }
 
   Order &originalOrder = it->second;
 
   if (originalOrder.type == OrderType::MARKET) {
+    logger.logOrderRejection(modifiedOrder, modifiedOrder.timestamp);
     return false;
   }
 
   if (originalOrder.status == OrderStatus::EXECUTED ||
       originalOrder.status == OrderStatus::CANCELED) {
-    return false;
-  }
-
-  Order tempOriginal = originalOrder;
-  tempOriginal.price = modifiedOrder.price;
-  tempOriginal.quantity = modifiedOrder.quantity;
-
-  if (!(tempOriginal == modifiedOrder)) {
+    logger.logOrderRejection(modifiedOrder, modifiedOrder.timestamp);
     return false;
   }
 
@@ -107,7 +104,7 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
     book.removeOrder(originalOrder);
     originalOrder.price = modifiedOrder.price;
     originalOrder = matchOrder(originalOrder, book);
-    
+
     if (originalOrder.quantity - originalOrder.executed_quantity > 0) {
       book.addOrder(&originalOrder);
     }
@@ -117,6 +114,7 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
     if (modifiedOrder.quantity - originalOrder.executed_quantity >= 0) {
       originalOrder.quantity = modifiedOrder.quantity;
     } else {
+      logger.logOrderRejection(modifiedOrder, modifiedOrder.timestamp);
       return false;
     }
   }
@@ -127,6 +125,7 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
 bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
   auto it = orders.find(cancelledOrder.order_id);
   if (it == orders.end()) {
+    logger.logOrderRejection(cancelledOrder, cancelledOrder.timestamp);
     return false;
   }
 
@@ -134,10 +133,12 @@ bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
 
   if (originalOrder.status == OrderStatus::EXECUTED ||
       originalOrder.status == OrderStatus::CANCELED) {
+    logger.logOrderRejection(cancelledOrder, cancelledOrder.timestamp);
     return false;
   }
 
   if (originalOrder.type == OrderType::MARKET) {
+    logger.logOrderRejection(cancelledOrder, cancelledOrder.timestamp);
     return false;
   }
 
