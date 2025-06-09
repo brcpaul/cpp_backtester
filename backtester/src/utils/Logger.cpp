@@ -54,7 +54,7 @@ void Logger::logOrderCancellation(const Order &order, long long timestamp) {
   std::ostringstream oss;
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.quantity << ","
+      << order.side << "," << order.type << "," << remaining_quantity << ","
       << order.price << ",CANCEL,CANCELED,0,0,0";
   *output_stream << oss.str() << std::endl;
 }
@@ -63,7 +63,7 @@ void Logger::logOrderRejection(const Order &order, std::string action, long long
   std::ostringstream oss;
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.quantity << ","
+      << order.side << "," << order.type << "," << remaining_quantity << ","
       << order.price << "," << action << ",REJECTED,0,0,0";
   *output_stream << oss.str() << std::endl;
 }

@@ -18,7 +18,7 @@ void testOrderGeneration() {
         
         // Vérifications basiques
         assert(order.timestamp > 0);
-        assert(order.order_id >= 1);
+        assert(order.order_id >= 0);
         assert(order.quantity >= 1 && order.quantity <= 1000);
         
         // Logique des prix

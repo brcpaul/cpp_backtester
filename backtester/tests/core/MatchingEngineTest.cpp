@@ -4,6 +4,9 @@
 
 void testSubmitOrder() {
     MatchingEngine engine;
+    std::ostringstream nullStream;
+    engine.getLogger().setOutputStream(&nullStream);
+    
     Order order(1, "AAPL", BUY, LIMIT, 100.0, 10, 0);
     bool result = engine.submitOrder(order);
     assert(result);
@@ -14,6 +17,9 @@ void testSubmitOrder() {
 
 void testOrderMatching() {
     MatchingEngine engine;
+    std::ostringstream nullStream;
+    engine.getLogger().setOutputStream(&nullStream);
+
     Order buy(1, "AAPL", BUY, LIMIT, 100.0, 10, 0);
     Order sell(2, "AAPL", SELL, LIMIT, 100.0, 10, 1);
     engine.submitOrder(buy);
@@ -25,6 +31,9 @@ void testOrderMatching() {
 
 void testModifyOrder() {
     MatchingEngine engine;
+    std::ostringstream nullStream;
+    engine.getLogger().setOutputStream(&nullStream);
+
     Order order(1, "AAPL", BUY, LIMIT, 100.0, 10, 0);
     engine.submitOrder(order);
     Order modified(1, "AAPL", BUY, LIMIT, 101.0, 10, 0);
@@ -36,6 +45,9 @@ void testModifyOrder() {
 
 void testCancelOrder() {
     MatchingEngine engine;
+    std::ostringstream nullStream;
+    engine.getLogger().setOutputStream(&nullStream);
+
     Order order(1, "AAPL", BUY, LIMIT, 100.0, 10, 0);
     engine.submitOrder(order);
     bool result = engine.cancelOrder(order);
