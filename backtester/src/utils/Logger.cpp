@@ -19,7 +19,7 @@ void Logger::logNewOrder(const Order &order, long long timestamp) {
   std::ostringstream oss;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << order.quantity << ","
-      << order.price << "," << order.status << ",0,0,0";
+      << order.price << ",NEW," << order.status << ",0,0,0";
   *output_stream << oss.str() << std::endl;
 }
 
@@ -30,7 +30,7 @@ void Logger::logOrderExecution(const Order &order, int executed_quantity,
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << remaining_quantity << ","
-      << order.price << ",EXECUTED," << executed_quantity << ","
+      << order.price << ",NEW,EXECUTED," << executed_quantity << ","
       << execution_price << "," << counterparty_id;
   *output_stream << oss.str() << std::endl;
 }
@@ -43,7 +43,7 @@ void Logger::logOrderPartialExecution(const Order &order, int executed_quantity,
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << remaining_quantity << ","
-      << order.price << ",PARTIALLY_EXECUTED," << executed_quantity << ","
+      << order.price << ",NEW,PARTIALLY_EXECUTED," << executed_quantity << ","
       << execution_price << "," << counterparty_id;
   *output_stream << oss.str() << std::endl;
 }
@@ -53,7 +53,7 @@ void Logger::logOrderPending(const Order &order, long long timestamp) {
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << remaining_quantity << ","
-      << order.price << ",PENDING," << order.executed_quantity << ","
+      << order.price << ",NEW,PENDING," << order.executed_quantity << ","
       << order.execution_price << ",0";
   *output_stream << oss.str() << std::endl;
 }
@@ -62,14 +62,14 @@ void Logger::logOrderCancellation(const Order &order, long long timestamp) {
   std::ostringstream oss;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << order.quantity << ","
-      << order.price << ",CANCELED,0,0,0";
+      << order.price << ",CANCEL,CANCELED,0,0,0";
   *output_stream << oss.str() << std::endl;
 }
 
-void Logger::logOrderRejection(const Order &order, long long timestamp) {
+void Logger::logOrderRejection(const Order &order, std::string action, long long timestamp) {
   std::ostringstream oss;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
       << order.side << "," << order.type << "," << order.quantity << ","
-      << order.price << ",REJECTED,0,0,0";
+      << order.price << "," << action << ",REJECTED,0,0,0";
   *output_stream << oss.str() << std::endl;
 }

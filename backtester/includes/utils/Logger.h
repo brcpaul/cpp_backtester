@@ -30,7 +30,7 @@ public:
   void logOrderPending(const Order &order, long long timestamp);
   void logOrderCancellation(const Order &order, long long timestamp);
   void logOrderModification(const Order &order, long long timestamp);
-  void logOrderRejection(const Order &order, long long timestamp);
+  void logOrderRejection(const Order &order, std::string action,long long timestamp);
 
   void setOutputStream(std::ostream *output_stream);
 
