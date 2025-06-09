@@ -44,7 +44,7 @@ void testCancelOrder() {
     assert(ob.bids.empty());
 }
 
-int main() {
+int runMatchingEngineTests() {
     testSubmitOrder();
     testOrderMatching();
     testModifyOrder();

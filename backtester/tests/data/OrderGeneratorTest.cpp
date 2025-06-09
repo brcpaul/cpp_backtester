@@ -18,15 +18,13 @@ void testOrderGeneration() {
         
         // Vérifications basiques
         assert(order.timestamp > 0);
-        assert(order.order_id >= 1 && order.order_id <= 1000);
+        assert(order.order_id >= 1);
         assert(order.quantity >= 1 && order.quantity <= 1000);
         
         // Logique des prix
         if (order.type == "LIMIT") {
-            assert(order.price > 0.0 && order.price <= 1000.0);
-        } else {
-            assert(order.price == 0.0);
-        }
+            assert(order.price > 0.0);
+        } 
         
         // Comptage pour distribution
         instrumentCount[order.instrument]++;

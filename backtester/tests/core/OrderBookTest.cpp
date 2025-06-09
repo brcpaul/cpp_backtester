@@ -32,7 +32,7 @@ void testBestBidAsk() {
     delete b1; delete b2; delete a1;
 }
 
-int main() {
+int runOrderBookTests() {
     testAddOrder();
     testRemoveOrder();
     testBestBidAsk();
