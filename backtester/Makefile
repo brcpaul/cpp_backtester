@@ -22,15 +22,17 @@ SOURCES = $(SRC_DIR)/main.cpp \
 LIB_SOURCES = $(SRC_DIR)/data/CSVReader.cpp \
               $(SRC_DIR)/data/DataLoader.cpp \
               $(SRC_DIR)/data/OrderGenerator.cpp \
-            #   $(SRC_DIR)/core/MatchingEngine.cpp \
-            #   $(SRC_DIR)/core/OrderBook.cpp \
-            #   $(SRC_DIR)/core/Order.cpp \
+              $(SRC_DIR)/core/MatchingEngine.cpp \
+              $(SRC_DIR)/core/OrderBook.cpp \
+              $(SRC_DIR)/core/Order.cpp \
+              $(SRC_DIR)/utils/Logger.cpp
 
 # Fichiers de test avec leur main
 TESTSOURCES = $(TEST_DIR)/main.cpp \
               $(TEST_DIR)/data/CSVReaderTest.cpp \
               $(TEST_DIR)/data/DataLoaderTest.cpp \
               $(TEST_DIR)/data/OrderGeneratorTest.cpp \
+              
             #   $(TEST_DIR)/core/BookSide.cpp \
             #   $(TEST_DIR)/core/OrderBook.cpp \
             #   $(TEST_DIR)/core/Order.cpp \
@@ -41,6 +43,7 @@ PERFSOURCES = $(PERF_DIR)/main.cpp \
               $(PERF_DIR)/data/CSVReaderPerformance.cpp \
               $(PERF_DIR)/data/DataLoaderPerformance.cpp \
               $(PERF_DIR)/data/OrderGeneratorPerformance.cpp \
+              $(PERF_DIR)/core/MatchingEnginePerformance.cpp \
             #   $(PERF_DIR)/core/BookSide.cpp \
             #   $(PERF_DIR)/core/OrderBook.cpp \
             #   $(PERF_DIR)/core/Order.cpp \
