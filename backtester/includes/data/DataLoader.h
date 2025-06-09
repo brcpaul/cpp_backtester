@@ -16,8 +16,7 @@ enum class Action {
     CANCEL
 };
 
-struct Data
-{
+struct Data {
     long long timestamp;        // Horodatage en nanosecondes depuis l'époque Unix
     long long order_id;         // Identifiant unique de l'ordre
     std::string instrument;     // Code de l'instrument financier
@@ -28,8 +27,7 @@ struct Data
     Action action;              // Action à effectuer (NEW, MODIFY, CANCEL)
 };
 
-class DataLoader
-{
+class DataLoader {
 public:
     DataLoader(const std::string filename);
     std::vector<Data> loadData();

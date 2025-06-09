@@ -29,7 +29,7 @@ void Logger::logOrderExecution(const Order &order, int executed_quantity,
   std::ostringstream oss;
   int remaining_quantity = order.quantity - order.executed_quantity;
   oss << timestamp << "," << order.order_id << "," << order.instrument << ","
-      << order.side << "," << order.type << "," << order.quantity << ","
+      << order.side << "," << order.type << "," << remaining_quantity << ","
       << order.price << ",EXECUTED," << executed_quantity << ","
       << execution_price << "," << counterparty_id;
   *output_stream << oss.str() << std::endl;

@@ -6,147 +6,183 @@
 #include "../includes/data/CSVReader.h"
 #include "../utils/TestFile.h"
 
-// Test du constructeur avec un fichier valide
-void testConstructorValidFile() {
-    std::cout << "Test: Constructor avec fichier valide... ";
-    
-    std::string testFile = "test_valid.csv";
-    createTestFile(testFile, "col1,col2\nval1,val2\n");
-    
-    try {
-        CSVReader reader(testFile);
-        std::cout << "PASS\n";
-    } catch (...) {
-        std::cout << "FAIL\n";
-        assert(false);
-    }
-    
-    cleanupFile(testFile);
-}
 
-// Test du constructeur avec un fichier inexistant
-void testConstructorInvalidFile() {
-    std::cout << "Test: Constructor avec fichier inexistant... ";
+void testBasicParsing() {
+    std::cout << "Test: Parsing de base et header seul... ";
     
-    bool exceptionThrown = false;
-    try {
-        CSVReader reader("fichier_inexistant.csv");
-    } catch (const std::runtime_error&) {
-        exceptionThrown = true;
-    }
+    // Cas normal avec données
+    std::string file1 = "basic_parsing.csv";
+    createTestFile(file1, "col1,col2,col3\nval1,val2,val3\ndata1,data2,data3\n");
     
-    assert(exceptionThrown);
+    CSVReader reader1(file1);
+    auto rows1 = reader1.readCSV();
+    assert(rows1.size() == 3);
+    assert(rows1[0].values[0] == "col1");
+    assert(rows1[1].values[2] == "val3");
+    assert(rows1[2].values[1] == "data2");
+    
+    // Header seul 
+    std::string file2 = "header_only.csv";
+    createTestFile(file2, "timestamp,order_id,instrument,side,type,quantity,price,action\n");
+    
+    CSVReader reader2(file2);
+    auto rows2 = reader2.readCSV();
+    assert(rows2.size() == 1);
+    assert(rows2[0].values.size() == 8);
+    
+    cleanupFile(file1);
+    cleanupFile(file2);
     std::cout << "PASS\n";
 }
 
-// Test de lecture d'un CSV avec données valides
-void testReadCSVValidData() {
-    std::cout << "Test: Lecture CSV avec données valides... ";
+void testFieldDelimiterHandling() {
+    std::cout << "Test: Gestion des délimiteurs et champs vides... ";
     
-    std::string testFile = "test_data.csv";
-    createTestFile(testFile, 
-        "timestamp,order_id,instrument,side,type,quantity,price,action\n"
-        "1234567890,ORDER_001,AAPL,BUY,LIMIT,100.0,150.25,NEW\n"
-        "1234567891,ORDER_002,GOOGL,SELL,MARKET,50.0,,NEW\n"
+    std::string file = "delimiter_test.csv";
+    createTestFile(file,
+        "col1,col2,col3,col4,\n"           // Virgule finale
+        "value1,,value3,,\n"               // Champs vides au milieu et fin
+        ",empty_first,value3,\n"           // Premier champ vide
+        "single\n"                         // Une seule valeur (pas de virgule)
     );
     
-    CSVReader reader(testFile);
-    std::vector<CSVRow> rows = reader.readCSV();
+    CSVReader reader(file);
+    auto rows = reader.readCSV();
     
-    // Vérifications
-    assert(rows.size() == 3); // Header + 2 lignes de données
+    assert(rows.size() == 4);
     
-    // Test de la ligne d'en-tête
-    assert(rows[0].values.size() == 8);
-    assert(rows[0].values[0] == "timestamp");
-    assert(rows[0].values[1] == "order_id");
-    assert(rows[0].values[7] == "action");
+    // Ligne 1: virgule finale crée un champ vide
+    assert(rows[0].values.size() == 5);
+    assert(rows[0].values[4] == "");
     
-    // Test de la première ligne de données
-    assert(rows[1].values.size() == 8);
-    assert(rows[1].values[0] == "1234567890");
-    assert(rows[1].values[1] == "ORDER_001");
-    assert(rows[1].values[2] == "AAPL");
-    assert(rows[1].values[6] == "150.25");
+    // Ligne 2: champs vides préservés
+    assert(rows[1].values[1] == "");
+    assert(rows[1].values[3] == "");
     
-    // Test ligne avec champ vide (prix vide pour ordre MARKET)
-    assert(rows[2].values[6] == "");
+    // Ligne 3: premier champ vide
+    assert(rows[2].values[0] == "");
+    assert(rows[2].values[1] == "empty_first");
     
-    cleanupFile(testFile);
+    // Ligne 4: aucune virgule
+    assert(rows[3].values.size() == 1);
+    assert(rows[3].values[0] == "single");
+    
+    cleanupFile(file);
     std::cout << "PASS\n";
 }
 
-// Test de lecture d'un fichier CSV vide
-void testReadEmptyCSV() {
-    std::cout << "Test: Lecture CSV vide... ";
+void testInconsistentColumnCounts() {
+    std::cout << "Test: Lignes avec nombres de colonnes variables... ";
     
-    std::string emptyFile = "empty_test.csv";
+    std::string file = "inconsistent_columns.csv";
+    createTestFile(file,
+        "timestamp,order_id,instrument,side,type,quantity,price,action\n"  // 8 colonnes
+        "123,456,AAPL,BUY\n"                                              // 4 colonnes
+        "789,012,GOOGL,SELL,LIMIT,100,150.25,NEW,EXTRA\n"                 // 9 colonnes
+        "single_value\n"                                                   // 1 colonne
+    );
+    
+    CSVReader reader(file);
+    auto rows = reader.readCSV();
+    
+    assert(rows.size() == 4);
+    assert(rows[0].values.size() == 8);  // Header
+    assert(rows[1].values.size() == 4);  // Ligne courte
+    assert(rows[2].values.size() == 9);  // Ligne longue
+    assert(rows[3].values.size() == 1);  // Une seule valeur
+    
+    cleanupFile(file);
+    std::cout << "PASS\n";
+}
+
+void testSpecialCharactersAndSpaces() {
+    std::cout << "Test: Caractères spéciaux et espaces... ";
+    
+    std::string file = "special_chars.csv";
+    createTestFile(file,
+        "col1,col2,col3\n"
+        " leading_space,trailing_space ,both \n"
+        "tab\there,new,comma\\,here\n"
+        "\"quoted\",normal,end\n"
+    );
+    
+    CSVReader reader(file);
+    auto rows = reader.readCSV();
+    assert(rows.size() == 4);
+    
+    // Vérification que les espaces sont préservés 
+    assert(rows[1].values[0] == " leading_space");
+    assert(rows[1].values[1] == "trailing_space ");
+    assert(rows[1].values[2] == "both ");
+    
+    // Caractères spéciaux préservés
+    assert(rows[2].values[0].find('\t') != std::string::npos);
+    
+    cleanupFile(file);
+    std::cout << "PASS\n";
+}
+
+void testFileAccessErrors() {
+    std::cout << "Test: Erreurs d'accès fichier... ";
+    
+    // Fichier inexistant
+    bool exceptionThrown = false;
+    try {
+        CSVReader reader("nonexistent_file.csv");
+        reader.readCSV();
+    } catch (const std::runtime_error& e) {
+        exceptionThrown = true;
+        std::string msg = e.what();
+        assert(msg.find("Failed to open CSV file") != std::string::npos);
+    }
+    assert(exceptionThrown);
+    
+    // Fichier complètement vide
+    std::string emptyFile = "completely_empty.csv";
     createTestFile(emptyFile, "");
     
-    CSVReader reader(emptyFile);
-    std::vector<CSVRow> rows = reader.readCSV();
-    
-    assert(rows.size() == 0);
+    CSVReader reader2(emptyFile);
+    auto rows = reader2.readCSV();
+    assert(rows.empty());
     
     cleanupFile(emptyFile);
     std::cout << "PASS\n";
 }
 
-// Test avec des champs vides
-void testEmptyFields() {
-    std::cout << "Test: Gestion des champs vides... ";
+void testLargeDataParsing() {
+    std::cout << "Test: Parsing de données volumineuses... ";
     
-    std::string testFile = "empty_fields_test.csv";
-    createTestFile(testFile,
-        "col1,col2,col3\n"
-        "value1,,value3\n"
-        ",value2,\n"
-    );
+    std::string file = "large_data.csv";
+    std::string content = "timestamp,order_id,instrument,side,type,quantity,price,action\n";
     
-    CSVReader reader(testFile);
-    std::vector<CSVRow> rows = reader.readCSV();
+    // Génère 1000 lignes de données
+    for (int i = 1; i <= 1000; ++i) {
+        content += "123456789012345678" + std::to_string(i) + "," + 
+                   std::to_string(i) + ",AAPL,BUY,LIMIT,100,150.25,NEW\n";
+    }
     
-    assert(rows.size() == 3);
-    assert(rows[1].values[1] == ""); // Champ vide au milieu
-    assert(rows[2].values[0] == ""); // Premier champ vide
-    assert(rows[2].values[2] == ""); // Dernier champ vide
+    createTestFile(file, content);
     
-    cleanupFile(testFile);
+    CSVReader reader(file);
+    auto rows = reader.readCSV();
+    
+    assert(rows.size() == 1001);  // Header + 1000 lignes
+    assert(rows[1].values[1] == "1");      // Premier ordre
+    assert(rows[1000].values[1] == "1000"); // Dernier ordre
+    
+    cleanupFile(file);
     std::cout << "PASS\n";
 }
 
-// Test avec des espaces dans les valeurs
-void testSpacesInValues() {
-    std::cout << "Test: Gestion des espaces... ";
-    
-    std::string testFile = "spaces_test.csv";
-    createTestFile(testFile,
-        "col1,col2,col3\n"
-        "value with spaces, another value ,third\n"
-    );
-    
-    CSVReader reader(testFile);
-    std::vector<CSVRow> rows = reader.readCSV();
-    
-    assert(rows.size() == 2);
-    assert(rows[1].values[0] == "value with spaces");
-    assert(rows[1].values[1] == " another value "); // Avec espaces
-    
-    cleanupFile(testFile);
-    std::cout << "PASS\n";
-}
-
-// Tous les tests dans une seule fonction
 void runCSVReaderTests() {
-    std::cout << "=== Tests CSVReader ===\n\n";
+    std::cout << "=== Tests CSVReader - Responsabilité Parsing ===\n\n";
 
-    // Chaque test encapsulé dans un bloc try pour continuer malgré un échec
-    try { testConstructorValidFile(); } catch (...) { std::cout << "FAIL\n"; }
-    try { testConstructorInvalidFile(); } catch (...) { std::cout << "FAIL\n"; }
-    try { testReadCSVValidData(); } catch (...) { std::cout << "FAIL\n"; }
-    try { testReadEmptyCSV(); } catch (...) { std::cout << "FAIL\n"; }
-    try { testEmptyFields(); } catch (...) { std::cout << "FAIL\n"; }
-    try { testSpacesInValues(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testBasicParsing(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testFieldDelimiterHandling(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testInconsistentColumnCounts(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testSpecialCharactersAndSpaces(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testFileAccessErrors(); } catch (...) { std::cout << "FAIL\n"; }
+    try { testLargeDataParsing(); } catch (...) { std::cout << "FAIL\n"; }
 
     std::cout << "\n=== Fin des tests CSVReader ===\n";
 }

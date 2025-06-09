@@ -89,6 +89,14 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
     return false;
   }
 
+  Order tempOriginal = originalOrder;
+  tempOriginal.price = modifiedOrder.price;
+  tempOriginal.quantity = modifiedOrder.quantity;
+
+  if (!(tempOriginal == modifiedOrder)) {
+    return false;
+  }
+
   OrderBook &book = books[originalOrder.instrument];
 
   if (modifiedOrder.price != originalOrder.price) {
