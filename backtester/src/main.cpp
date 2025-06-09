@@ -11,10 +11,10 @@
 
 int main() {
     // 1. Charger les données CSV / Créer des ordres aléatoires
-    const bool random_orders = false;
+    const bool random_orders = true;
 
-    // Déclaration de loader avant le if pour qu'il soit accessible ensuite
-    DataLoader loader(random_orders ? "data/random_orders.csv" : "data/orders.csv");
+    // Déclaration de loader 
+    DataLoader loader("");  // Initialisation vide temporaire
 
     if (random_orders) {
         OrderGenerator generator;
@@ -33,6 +33,8 @@ int main() {
 
         // Recharge les données générées
         loader = DataLoader("data/random_orders.csv");
+    } else {
+        loader = DataLoader("data/orders.csv");
     }
 
     // Chargement des données
