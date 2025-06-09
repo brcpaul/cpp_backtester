@@ -81,20 +81,20 @@ void MatchingEngine::executeOrder(Order &order, int quantity, double price,
 bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
   auto it = orders.find(modifiedOrder.order_id);
   if (it == orders.end()) {
-    logger.logOrderRejection(modifiedOrder, "modify", modifiedOrder.timestamp);
+    logger.logOrderRejection(modifiedOrder, "MODIFY", modifiedOrder.timestamp);
     return false;
   }
 
   Order &originalOrder = it->second;
 
   if (originalOrder.type == OrderType::MARKET) {
-    logger.logOrderRejection(modifiedOrder, "modify", modifiedOrder.timestamp);
+    logger.logOrderRejection(modifiedOrder, "MODIFY", modifiedOrder.timestamp);
     return false;
   }
 
   if (originalOrder.status == OrderStatus::EXECUTED ||
       originalOrder.status == OrderStatus::CANCELED) {
-    logger.logOrderRejection(modifiedOrder, modifiedOrder.timestamp);
+    logger.logOrderRejection(modifiedOrder, "MODIFY", modifiedOrder.timestamp);
     return false;
   }
 
@@ -114,7 +114,7 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
     if (modifiedOrder.quantity - originalOrder.executed_quantity >= 0) {
       originalOrder.quantity = modifiedOrder.quantity;
     } else {
-      logger.logOrderRejection(modifiedOrder, "modify",
+      logger.logOrderRejection(modifiedOrder, "MODIFY",
                                modifiedOrder.timestamp);
       return false;
     }
@@ -126,7 +126,8 @@ bool MatchingEngine::modifyOrder(Order &modifiedOrder) {
 bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
   auto it = orders.find(cancelledOrder.order_id);
   if (it == orders.end()) {
-    logger.logOrderRejection(cancelledOrder, "cancel", cancelledOrder.timestamp);
+    logger.logOrderRejection(cancelledOrder, "CANCEL",
+                             cancelledOrder.timestamp);
     return false;
   }
 
@@ -134,12 +135,14 @@ bool MatchingEngine::cancelOrder(Order &cancelledOrder) {
 
   if (originalOrder.status == OrderStatus::EXECUTED ||
       originalOrder.status == OrderStatus::CANCELED) {
-    logger.logOrderRejection(cancelledOrder, "cancel", cancelledOrder.timestamp);
+    logger.logOrderRejection(cancelledOrder, "CANCEL",
+                             cancelledOrder.timestamp);
     return false;
   }
 
   if (originalOrder.type == OrderType::MARKET) {
-    logger.logOrderRejection(cancelledOrder, "cancel", cancelledOrder.timestamp);
+    logger.logOrderRejection(cancelledOrder, "CANCEL",
+                             cancelledOrder.timestamp);
     return false;
   }
 
